@@ -1,0 +1,102 @@
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgb(216, 216, 216);
+  border-radius: 40px;
+}
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+ 
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+.custom-sider {
+  border-radius: 10;
+  height: 100vh;
+  color: #ffff !important;
+  background-color: #0f5689 !important;
+  /* position: fixed !important;
+  left: 0;
+  overflow-y: auto !important; */
+}
+.transparent-header {
+  background-color: transparent !important;
+  box-shadow: none;
+}
+.ant-layout-sider-trigger{
+    background-color: transparent !important;
+
+}
+
+.headerDashboard {
+  background-color:#0f5689;
+  //background-color: white;
+  
+  /* background-color: #0f5689; */
+  /* color: white; */
+  /* padding: 10px;
+  border-radius: 5px; */
+}
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 64px;
+  padding: 10px;
+    transition: all 0.3s;
+}
+
+.logo img {
+  max-height: 100%;
+  transition: all 0.3s ease;
+}
+
+.logo.collapsed img {
+  width: 32px;
+  height: 32px;
+}
+
+.logo.expanded img {
+  width: 120px;
+  height: auto;
+}
+  .ant-layout-sider {
+    flex: 0 0 250px !important;
+    max-width: 250px !important;
+    min-width: 250px !important;
+    width: 250px !important;
+    /* height: 100dvh !important; */
+    overflow-y: scroll !important;
+  }
+
+  .ant-layout-sider-collapsed {
+    flex: 0 0 80px !important;
+    max-width: 80px !important;
+    min-width: 80px !important;
+    width: 0 !important;
+  }
+ .ant-input,
+ .ant-select-selector,
+ .ant-picker, .ant-picker-disabled{
+  font-weight: semibold !important;
+  color: #0f5800 !important;
+}
+

@@ -1,0 +1,3 @@
+interface ApprovalResponse {
+  message: string;
+}
