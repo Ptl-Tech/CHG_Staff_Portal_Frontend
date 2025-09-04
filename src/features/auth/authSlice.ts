@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk} from "@reduxjs/toolkit";
 import axios from "axios";
 import { getPersistedTokens } from "../../utils/token";
-import { type RootState } from "../../app/store";
 
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 
@@ -254,7 +253,7 @@ const authSlice = createSlice({
 });
 
 
-export const selectAuth = (state: RootState) => ({
+export const selectAuth = (state:any)=> ({
   token: state.auth.login.token,
   bcToken: state.auth.login.bcToken,
   staffNo: state.auth.login.staffNo,
@@ -262,15 +261,16 @@ export const selectAuth = (state: RootState) => ({
   status: state.auth.login.status,
   error: state.auth.login.error,
   message: state.auth.login.message,
-});
+  
+})   
 
-export const selectForgetPassword = (state: RootState) =>
+export const selectForgetPassword = (state: any) =>
   state.auth.forgetPassword;
 
-export const selectResetPassword = (state: RootState) =>
+export const selectResetPassword = (state: any) =>
   state.auth.resetPassword;
 
-export const selectChangePassword = (state: RootState) =>
+export const selectChangePassword = (state: any) =>
   state.auth.changePassword;
 
 export const { logout } = authSlice.actions;
