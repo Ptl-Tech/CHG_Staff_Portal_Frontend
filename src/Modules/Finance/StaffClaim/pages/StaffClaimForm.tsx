@@ -23,8 +23,6 @@ import {
     FileTextOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-
-import StaffClaimHeader from '../partials/staffClaimHeader';
 import PageHeader from '../../../../components/PageHeader';
 import EditStaffClaimHeader from '../partials/EditStaffClaimHeader';
 import { fetchPaymentDocument, fetchPaymentDocumentLines, selectPaymentDocument, selectPaymentLines } from '../../../../features/finance/commonRequest';
@@ -32,6 +30,7 @@ import { useAppDispatch, useAppSelector } from '../../../../hooks/ReduxHooks';
 import StaffClaimRequestLines from '../partials/StaffClaimRequestLines';
 import { selectApprovalApplication, sendForApproval } from '../../../../features/common/sendforApproval';
 import { cancelApproval, selectCancelApprovalApplication } from '../../../../features/common/cancelApprovalReq';
+import StaffClaimHeader from '../partials/StaffClaimHeader';
 
 const { TextArea } = Input;
 const { Option } = Select;
