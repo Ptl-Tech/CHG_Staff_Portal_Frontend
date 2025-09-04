@@ -1,5 +1,5 @@
 import { combineReducers } from '@reduxjs/toolkit';
-import authReducer from '../features/auth/authSlice'; // adjust path as needed
+
 import { fetchLeaveDocumentReducer, leaveApplicationReducer, leaveDropdownsReducer, leaveListReducer, returnDatesReducer } from '../features/leaveApplication';
 import { ApprovalReducer, CancelApprovalReducer, CommonSetupsReducer, DeleteLineReducer, DocumentsReducer } from '../features/common';
 import { PurchasePlansSetupReducer, PurchaseRequisitionReducer } from '../features/purchaseRequisitions';
@@ -9,9 +9,10 @@ import { AdvanceRequisitionsReducer, AdvanceSurrenderReducer, PaymentRequestRedu
 import { DashboardReducer } from '../features/dashboard';
 import { StoreRequisitionReducer } from '../features/storeRequisitions';
 import { PayrollServiceReducer } from '../features/payRoll';
+import { AuthReducer } from '../features/auth';
 
 export const rootReducer = combineReducers({
-    auth: authReducer,
+    auth: AuthReducer,
     leaveList: leaveListReducer,
     leaveDropdowns: leaveDropdownsReducer,
     returnDates: returnDatesReducer,
