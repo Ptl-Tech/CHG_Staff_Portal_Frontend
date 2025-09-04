@@ -9,10 +9,10 @@ import { AdvanceRequisitionsReducer, AdvanceSurrenderReducer, PaymentRequestRedu
 import { DashboardReducer } from '../features/dashboard';
 import { StoreRequisitionReducer } from '../features/storeRequisitions';
 import { PayrollServiceReducer } from '../features/payRoll';
-import { AuthReducer } from '../features/auth';
+import { authReducer } from '../features/auth';
 
 export const rootReducer = combineReducers({
-    auth: AuthReducer,
+    auth: authReducer,
     leaveList: leaveListReducer,
     leaveDropdowns: leaveDropdownsReducer,
     returnDates: returnDatesReducer,
