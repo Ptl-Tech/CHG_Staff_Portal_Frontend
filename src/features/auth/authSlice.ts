@@ -184,9 +184,8 @@ const authSlice = createSlice({
       localStorage.clear();
       //remove item
       localStorage.removeItem("persist:auth");
-   //   persistor.purge(); // Clear persisted state
       window.location.href = "/login";
-      state.login = initialState.login;
+      //state.login = initialState.login;
     },
   },
   extraReducers: (builder) => {
