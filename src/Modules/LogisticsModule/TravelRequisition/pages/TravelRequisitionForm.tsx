@@ -358,7 +358,7 @@ const TravelRequisitionForm: React.FC = () => {
                             </Col>
                             <Col span={8}>
                                 <Form.Item label="Per Diem Cost" name="perDiemRate">
-                                    <Input type="number" type="number" />
+                                    <Input type="number" />
                                 </Form.Item>
                             </Col>
                             <Col span={8}>
