@@ -1,8 +1,7 @@
-import { message } from 'antd';
 import { createSlice, createAsyncThunk} from "@reduxjs/toolkit";
 import axios from "axios";
 import { getPersistedTokens } from "../../utils/token";
-import { persistor, type RootState } from "../../app/store";
+import { type RootState } from "../../app/store";
 
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 
@@ -264,11 +263,6 @@ export const selectAuth = (state: RootState) => ({
   error: state.auth.login.error,
   message: state.auth.login.message,
 });
-
-export const selectLogin = (state: RootState) => state.auth.login;
-
-export const selectLoginStatus = (state: RootState) =>
-  state.auth.login.status;
 
 export const selectForgetPassword = (state: RootState) =>
   state.auth.forgetPassword;
