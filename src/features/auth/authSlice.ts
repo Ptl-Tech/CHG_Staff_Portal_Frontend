@@ -1,75 +1,108 @@
 import { message } from 'antd';
-// src/features/auth/authSlice.ts
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-import type { RootState } from '../../app/store';
-import type { AuthState, ChangePasswordState } from '../../types/authState';
-import { getPersistedTokens } from '../../utils/token';
-import ChangePasswordPage from '../../auth/ChangePassword';
+import { createSlice, createAsyncThunk} from "@reduxjs/toolkit";
+import axios from "axios";
+import { getPersistedTokens } from "../../utils/token";
+import { persistor, type RootState } from "../../app/store";
 
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 
+//state interfaces
+export interface LoginState {
+  token: string;
+  bcToken: string;
+  staffNo: string;
+  password: string;
+  status: "idle" | "pending" | "failed";
+  error: string | null;
+  message: string | null;
+}
 
+export interface ForgetPasswordState {
+  staffNo: string | null;
+  status: "idle" | "pending" | "failed";
+  error: string | null;
+  message: string | null;
+}
 
-const initialChangePasswordState: ChangePasswordState = {
-  status: 'idle',
-  error: null,
-  message: null,
-  password: null,
-  passwordConfirm: null,
-};
+export interface ResetPasswordState {
+  staffNo: string | null;
+  randomKey: number | null;
+  password: string | null;
+  status: "idle" | "pending" | "failed";
+  error: string | null;
+  message: string | null;
+}
 
+export interface ChangePasswordState {
+  password: string | null;
+  status: "idle" | "pending" | "failed";
+  error: string | null;
+  message: string | null;
+}
+//combined authstates
+export interface AuthState {
+  login: LoginState;
+  forgetPassword: ForgetPasswordState;
+  resetPassword: ResetPasswordState;
+  changePassword: ChangePasswordState;
+}
 
+/**
+ * Initial states
+ */
 const initialState: AuthState = {
-  token: null,
-  bcToken: null,
-  staffNo: null,
-  status: 'idle',
-  error: null,
-  message: null,
-  otpCode: null,
-  password: null,
-  changePassword: initialChangePasswordState, // ✅ FIX
+  login: {
+    token: "",
+    bcToken: "",
+    staffNo: "",
+    password: "",
+    status: "idle",
+    error: null,
+    message: null,
+  },
+  forgetPassword: {
+    staffNo: null,
+    status: "idle",
+    error: null,
+    message: null,
+  },
+  resetPassword: {
+    staffNo: null,
+    randomKey: null,
+    password: null,
+    status: "idle",
+    error: null,
+    message: null,
+  },
+  changePassword: {
+    password: null,
+    status: "idle",
+    error: null,
+    message: null,
+  },
 };
 
-export const login = createAsyncThunk<
-  { token: string; bcToken: string; staffNo: string,message: string },
-  { StaffNo: string; Password: string },
+
+export const loginUser = createAsyncThunk<
+  { token: string; bcToken: string; staffNo: string; message: string },
+  { staffNo: string; password: string },
   { rejectValue: { message: string } }
->('auth/login', async (credentials, { rejectWithValue }) => {
+>("auth/login", async (credentials, { rejectWithValue }) => {
   try {
     const { data } = await axios.post(`${API_ENDPOINT}/Account/login`, credentials);
 
-    if (data.status !== 'ACTIVE') {
-      return rejectWithValue({ message: data.message });
-    }
+if(data.status !== 'ACTIVE'){
+  return rejectWithValue({
+    message: data.message,
+  });
+}
 
-    return {
-      token: data.token,
-      bcToken: data.bcToken,
-      staffNo: credentials.StaffNo,
-      message: data.message
-    };
-  }catch (error: any) {
-    return rejectWithValue({ message:error?.response?.data?.error|| 'Failed to fetch return dates' });
-    
-  }
-});
 
-export const resetPassword = createAsyncThunk<
-  { status: number; message: string },
-  { staffNo: string | null; randomKey: string | null; newPassword: string },
-  { rejectValue: { message: string } }
->('auth/resetPassword', async (credentials, { rejectWithValue }) => {
-  try {
-    const { data } = await axios.post(`${API_ENDPOINT}/Account/complete-forgot-password`, credentials);
-
-   return {
-        status: data.responseDTO.statusCode,
-        message: data.responseDTO.description,
-      };
+    return data;
   } catch (err: any) {
-    return rejectWithValue({ message: err.message || 'Reset Password failed' });
+    return rejectWithValue({
+      message: err.message || "Failed to login",
+    });
   }
 });
 
@@ -77,147 +110,175 @@ export const forgetPassword = createAsyncThunk<
   { status: number; message: string },
   { StaffNo: string },
   { rejectValue: { message: string } }
->(
-  'auth/forgetPassword',
-  async ({ StaffNo }, { rejectWithValue }) => {
-    try {
-      console.log('staffnumber', StaffNo);
-      const { data } = await axios.post(
-        `${API_ENDPOINT}/Account/forgot-password?staffNo=${StaffNo}`
-      );
-
-      return {
-        status: data.responseDTO.statusCode,
-        message: data.responseDTO.description,
-      };
-    } catch (err: any) {
-      return rejectWithValue({
-        message: err.response?.data?.error || 'Change Password failed',
-      });
-    }
+>("auth/forgetPassword", async ({ StaffNo }, { rejectWithValue }) => {
+  try {
+    const { data } = await axios.post(
+      `${API_ENDPOINT}/Account/forgot-password?staffNo=${StaffNo}`
+    );
+    return {
+      status: data.responseDTO.statusCode,
+      message: data.responseDTO.description,
+    };
+  } catch (err: any) {
+    return rejectWithValue({
+      message: err?.response?.data?.error || "Failed to forget password",
+    });
   }
-);
+});
+
+export const resetPassword = createAsyncThunk<
+  { status: number; message: string },
+  { staffNo: string | null; randomKey: string | null; newPassword: string },
+  { rejectValue: { message: string } }
+>("auth/resetPassword", async (credentials, { rejectWithValue }) => {
+  try {
+    const { data } = await axios.post(
+      `${API_ENDPOINT}/Account/complete-forgot-password`,
+      credentials
+    );
+    return {
+      status: data.responseDTO.statusCode,
+      message: data.responseDTO.description,
+    };
+  } catch (err: any) {
+    return rejectWithValue({
+      message: err?.response?.data?.error || "Reset Password failed",
+    });
+  }
+});
 
 export const changePassword = createAsyncThunk<
   { status: number; message: string },
-  { password: string; },
+  { password: string },
   { rejectValue: { message: string } }
->('auth/changePassword', async (values, { rejectWithValue }) => {
+>("auth/changePassword", async (values, { rejectWithValue }) => {
   try {
     const { token, bcToken } = getPersistedTokens();
-
-    const { data } = await axios.post(`${API_ENDPOINT}/Account/change-password?newPassword=${values.password}`, values, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'BC-Authorization': bcToken || '',
-      },
-    });
+    const { data } = await axios.post(
+      `${API_ENDPOINT}/Account/change-password?newPassword=${values.password}`,
+      values,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "BC-Authorization": bcToken || "",
+        },
+      }
+    );
     return {
       status: data.status,
       message: data.description,
     };
   } catch (err: any) {
-    return rejectWithValue({ message: err.message || 'Change Password failed' });
+    return rejectWithValue({
+      message: err?.response?.data?.error || "Change Password failed",
+    });
   }
 });
 
+
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
-    logout(state) {
-      state.token = state.bcToken = state.staffNo = null;
-      state.status = 'idle';
+    logout: (state) => {
+      localStorage.clear();
+      //remove item
+      localStorage.removeItem("persist:auth");
+   //   persistor.purge(); // Clear persisted state
+      window.location.href = "/login";
+      state.login = initialState.login;
     },
-
   },
   extraReducers: (builder) => {
     // Login
     builder
-      .addCase(login.pending, (s) => {
-        s.status = 'pending';
-        s.error = null;
+      .addCase(loginUser.pending, (s) => {
+        s.login.status = "pending";
+        s.login.error = null;
       })
-      .addCase(login.fulfilled, (s, { payload }) => {
-        s.status = 'idle';
-        s.token = payload.token;
-        s.bcToken = payload.bcToken;
-        s.staffNo = payload.staffNo;
-        s.message = payload.message
+      .addCase(loginUser.fulfilled, (s, { payload }) => {
+        s.login.status = "idle";
+        s.login.token = payload.token;
+        s.login.bcToken = payload.bcToken;
+        s.login.staffNo = payload.staffNo;
+        s.login.message = payload.message;
       })
-      .addCase(login.rejected, (s, { payload }) => {
-        s.status = 'failed';
-        s.error = payload?.message ?? 'Unknown error';
-        s.token = s.bcToken = s.staffNo = null;
-      })
+      .addCase(loginUser.rejected, (s, { payload }) => {
+        s.login.status = "failed";
+        s.login.error = payload?.message ?? "Unknown error";
+      });
+
+    // Forget password
+    builder
       .addCase(forgetPassword.pending, (s) => {
-        s.status = 'pending';
-        s.error = null;
+        s.forgetPassword.status = "pending";
+        s.forgetPassword.error = null;
       })
       .addCase(forgetPassword.fulfilled, (s, { payload }) => {
-        s.status = 'idle';
-        s.message = payload.message;
+        s.forgetPassword.status = "idle";
+        s.forgetPassword.message = payload.message;
       })
       .addCase(forgetPassword.rejected, (s, { payload }) => {
-        s.status = 'failed';
-        s.error = payload?.message ?? 'Unknown error';
-      }).
-      addCase(resetPassword.pending, (s) => {
-        s.status = 'pending';
-        s.error = null;
+        s.forgetPassword.status = "failed";
+        s.forgetPassword.error = payload?.message ?? "Unknown error";
+      });
+
+    // Reset password
+    builder
+      .addCase(resetPassword.pending, (s) => {
+        s.resetPassword.status = "pending";
+        s.resetPassword.error = null;
       })
       .addCase(resetPassword.fulfilled, (s, { payload }) => {
-        s.status = 'idle';
-        s.message = payload.message;
+        s.resetPassword.status = "idle";
+        s.resetPassword.message = payload.message;
       })
       .addCase(resetPassword.rejected, (s, { payload }) => {
-        s.status = 'failed';
-        s.error = payload?.message ?? 'Unknown error';
-      })
+        s.resetPassword.status = "failed";
+        s.resetPassword.error = payload?.message ?? "Unknown error";
+      });
+
+    // Change password
+    builder
       .addCase(changePassword.pending, (s) => {
-        s.changePassword.status = 'pending';
+        s.changePassword.status = "pending";
         s.changePassword.error = null;
       })
       .addCase(changePassword.fulfilled, (s, { payload }) => {
-        s.changePassword.status = 'idle';
+        s.changePassword.status = "idle";
         s.changePassword.message = payload.message;
       })
       .addCase(changePassword.rejected, (s, { payload }) => {
-        s.changePassword.status = 'failed';
-        s.changePassword.error = payload?.message ?? 'Unknown error';
+        s.changePassword.status = "failed";
+        s.changePassword.error = payload?.message ?? "Unknown error";
       });
-
-
   },
 });
 
-export const { logout } = authSlice.actions;
+
 export const selectAuth = (state: RootState) => ({
-  token: state.auth.token,
-  bcToken: state.auth.bcToken,
-  staffNo: state.auth.staffNo,
-  status: state.auth.status,
-  error: state.auth.error,
-  message: state.auth.message,
-
+  token: state.auth.login.token,
+  bcToken: state.auth.login.bcToken,
+  staffNo: state.auth.login.staffNo,
+  isAuthenticated: !!state.auth.login.token,
+  status: state.auth.login.status,
+  error: state.auth.login.error,
+  message: state.auth.login.message,
 });
 
-export const selectForgetPassword = (state: RootState) => ({
-  status: state.auth.status,
-  error: state.auth.error,
-  message: state.auth.message,
-});
+export const selectLogin = (state: RootState) => state.auth.login;
 
-export const selectResetPassword = (state: RootState) => ({
-  status: state.auth.status,
-  error: state.auth.error,
-  message: state.auth.message,
-});
+export const selectLoginStatus = (state: RootState) =>
+  state.auth.login.status;
 
-export const selectChangePassword = (state: RootState) => ({
-  status: state.auth.changePassword.status,
-  error: state.auth.changePassword.error,
-  message: state.auth.changePassword.message,
-});
+export const selectForgetPassword = (state: RootState) =>
+  state.auth.forgetPassword;
 
+export const selectResetPassword = (state: RootState) =>
+  state.auth.resetPassword;
+
+export const selectChangePassword = (state: RootState) =>
+  state.auth.changePassword;
+
+export const { logout } = authSlice.actions;
 export default authSlice.reducer;

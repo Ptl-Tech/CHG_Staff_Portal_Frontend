@@ -257,7 +257,11 @@ export const selectUomSetup = (state: RootState) => state.commonSetup.uomSetup;
 export const selectStaffList = (state: RootState) => state.commonSetup.staffList;
 export const selectDonorsList = (state: RootState) => state.commonSetup.donorsList;
 export const selectJobsList = (state: RootState) => state.commonSetup.jobsList;
-export const selectResponsibilityCenters = (state: RootState) => state.commonSetup.responsibilityCenters;
+export const selectResponsibilityCenters = (state: RootState) =>({
+  status: state.commonSetup.status,
+  error: state.commonSetup.error,
+  responsibilityCenters: state.commonSetup.responsibilityCenters
+})
 export const selectDocumentApprovalEntries = (state: RootState) => ({
   status: state.commonSetup.status,
   error: state.commonSetup.error,

@@ -23,6 +23,7 @@ import {
     selectSubmitAdvanceRequest,
     submitTravelAdvanceRequest,
 } from '../../../../features/finance/advanceRequisition';
+import { fetchResponsibilityCenters, selectResponsibilityCenters } from '../../../../features/common/commonSetups';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -34,18 +35,15 @@ interface HeaderProps {
 const TravelAdvanceHeader = ({ onSubmit }: HeaderProps) => {
     const dispatch = useAppDispatch();
     const [form] = Form.useForm();
-    const { destinationList, status: destStatus } = useAppSelector(selectDestinationList);
+    const { responsibilityCenters, status: destStatus } = useAppSelector(selectResponsibilityCenters);
     const { status } = useAppSelector(selectSubmitAdvanceRequest);
     const [api, contextHolder] = notification.useNotification();
 
     useEffect(() => {
-        dispatch(fetchDestinationList());
+        dispatch(fetchResponsibilityCenters());
     }, [dispatch]);
 
-    const handleDestinationChange = (value: string) => {
-        const selected = destinationList.find((d: any) => d.destinationCode === value);
-        form.setFieldsValue({ travelType: selected?.travelType || undefined });
-    };
+
 
     const onValuesChange = () => {
         const travelDate = form.getFieldValue('travelDate');
@@ -56,25 +54,16 @@ const TravelAdvanceHeader = ({ onSubmit }: HeaderProps) => {
         }
     };
 
-    const SubmitHeader = async () => {
-         const values = form.getFieldsValue();
-        const travelTypeVal =
-            typeof values.travelType === 'string' &&
-                values.travelType.toLocaleLowerCase() === 'local'
-                ? 1
-                : 0;
+    const SubmitHeader = async(values) => {       
 
         const payload = {
-            paymentNo: '',
-            destination: values.destination,
-            travelType: travelTypeVal,
-            travelDate: values.travelDate.format('YYYY-MM-DD'),
-            completionDate: values.completionDate.format('YYYY-MM-DD'),
-            noOfDays: values.noOfDays,
-            paymentNarration: values.paymentNarration,
+            ...values,
+            docNo:'',
+            requestDate: moment().format('YYYY-MM-DD'),
         };
 
-        const res = await dispatch(submitTravelAdvanceRequest
+       try {
+         const res = await dispatch(submitTravelAdvanceRequest
             (payload)).unwrap();
         api.success({
             message: 'Success',
@@ -83,6 +72,14 @@ const TravelAdvanceHeader = ({ onSubmit }: HeaderProps) => {
                 if (res) onSubmit(res.description);
             }
         });
+       } catch (error) {
+        console.error('Failed to submit advance request', error);
+        api.error({
+            message: 'Error',
+            description: error && error?.message || 'Failed to submit advance request',
+        });
+        
+       }
 
 
     };
@@ -118,45 +115,13 @@ const TravelAdvanceHeader = ({ onSubmit }: HeaderProps) => {
                     autoComplete="off"
                     onValuesChange={onValuesChange}
                 >
-                    <Typography.Text strong>Advance Request</Typography.Text>
+                    <Typography.Text strong>Imprest Request</Typography.Text>
 
                     <Row gutter={16}>
                         <Col span={12}>
                             <Form.Item
-                                label="Destination"
-                                name="destination"
-                                rules={[{ required: true, message: 'Please select a destination' }]}
-                            >
-                                <Select
-                                    placeholder="Select destination"
-                                    showSearch
-                                    optionFilterProp="children"
-                                    onChange={handleDestinationChange}
-                                    allowClear
-                                >
-                                    {destinationList?.map((d: any) => (
-                                        <Option key={d.destinationCode} value={d.destinationCode}>
-                                            {d.destinationName}
-                                        </Option>
-                                    ))}
-                                </Select>
-                            </Form.Item>
-                        </Col>
-
-                        <Col span={12}>
-                            <Form.Item
-                                label="Travel Type"
-                                name="travelType"
-                                rules={[{ required: true, message: 'Travel type is required' }]}
-                            >
-                                <Input readOnly placeholder="Auto-filled based on destination" />
-                            </Form.Item>
-                        </Col>
-
-                        <Col span={12}>
-                            <Form.Item
-                                label="Travel Date"
-                                name="travelDate"
+                                label="Request Date"
+                                name="dateRequested"
                                 rules={[{ required: true, message: 'Please select travel date' }]}
                             >
                                 <DatePicker
@@ -167,38 +132,26 @@ const TravelAdvanceHeader = ({ onSubmit }: HeaderProps) => {
                             </Form.Item>
                         </Col>
 
-                        <Col span={12}>
+
+                         <Col span={12}>
                             <Form.Item
-                                label="Return Date"
-                                name="completionDate"
-                                rules={[{ required: true, message: 'Please select completion date' }]}
+                                label="Responsibility Center"
+                                name="responsibilityCenter"
+                                rules={[{ required: true, message: 'Please enter the responsibility center' }]}
                             >
-                                <DatePicker
-                                    style={{ width: '100%' }}
-                                    format="DD/MM/YYYY"
-                                    disabledDate={(current) => {
-                                        const travelDate = form.getFieldValue('travelDate');
-                                        const min = travelDate
-                                            ? moment(travelDate).startOf('day')
-                                            : moment().startOf('day');
-                                        return current && current < min;
-                                    }}
-                                />
+                                <Select placeholder="Select Responsibility Center">
+                                    {responsibilityCenters.map((center) => (
+                                        <Option key={center.code} value={center.code}>{center.description}</Option>
+                                    ))}
+                                </Select>
                             </Form.Item>
                         </Col>
 
-                        <Col span={12}>
-                            <Form.Item
-                                label="Number of Days"
-                                name="noOfDays"
-                                rules={[{ required: true, message: 'Number of days is required' }]}
-                            >
-                                <InputNumber min={1} style={{ width: '100%' }} readOnly />
-                            </Form.Item>
-                        </Col>
+
+
 
                         <Col span={24}>
-                            <Form.Item label="Description" name="paymentNarration">
+                            <Form.Item label="Description" name="purpose" rules={[{ required: true, message: 'Please enter description' }]}>
                                 <TextArea rows={4} />
                             </Form.Item>
                         </Col>

@@ -25,14 +25,13 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 import PageHeader from '../../../../components/PageHeader';
-import { fetchImprestLines, fetchPaymentDocument, fetchSurrenderLines, selectImprestLines, selectPaymentDocument, selectSurrenderLines } from '../../../../features/finance/commonRequest';
 import { useAppDispatch, useAppSelector } from '../../../../hooks/ReduxHooks';
 import TravelAdvanceHeader from '../partials/TravelAdvanceHeader';
 import EditAdvanceHeader from '../partials/EditAdvanceHeader';
 import AdvanceRequestLines from '../partials/AdvanceRequestLines';
 import { selectApprovalApplication, sendForApproval } from '../../../../features/common/sendforApproval';
 import { cancelApproval, selectCancelApprovalApplication } from '../../../../features/common/cancelApprovalReq';
-import { fetchAdvanceRequestList } from '../../../../features/finance/advanceRequisition';
+import { fetchAdvanceRequestList, fetchImprestDocument, fetchImprestLine, selectImprestDocument, selectImprestLines } from '../../../../features/finance/advanceRequisition';
 
 
 const { TextArea } = Input;
@@ -45,8 +44,8 @@ const TravelAdvanceRequisition: React.FC = () => {
     const initialdocNo = new URLSearchParams(window.location.search).get('DocumentNo');
     const [docNo, setDocNo] = React.useState<string | null>(initialdocNo);
 
-    const { document, status, error } = useAppSelector(selectPaymentDocument);
-    const { imprestLines, status: lineStatus, error: lineError } = useAppSelector(selectImprestLines);
+    const { imprestDocument, status } = useAppSelector(selectImprestDocument);
+    const { imprestLines, status: lineStatus } = useAppSelector(selectImprestLines);
 
     const { message: approvalRes, status: approvalStatus } = useAppSelector(selectApprovalApplication);
     const { message: cancelApprovalReq, status: cancelApprovalStatus } = useAppSelector(selectCancelApprovalApplication);
@@ -59,8 +58,8 @@ const TravelAdvanceRequisition: React.FC = () => {
 
     useEffect(() => {
         if (docNo) {
-            dispatch(fetchPaymentDocument({ documentNo: docNo }));
-            dispatch(fetchImprestLines({ documentNo: docNo }));
+            dispatch(fetchImprestDocument({ documentNo: docNo }));
+           dispatch(fetchImprestLine({ documentNo: docNo }));
         }
     }, [dispatch, docNo]);
 
@@ -75,11 +74,9 @@ const TravelAdvanceRequisition: React.FC = () => {
 
     const handleHeaderSubmit = (newDocNo: string) => {
         setDocNo(newDocNo);
-        dispatch(fetchPaymentDocument({ documentNo: newDocNo }));
-        dispatch(fetchImprestLines({ documentNo: newDocNo }));
+         dispatch(fetchImprestDocument({ documentNo: docNo }));
+           dispatch(fetchImprestLine({ documentNo: docNo }));
     };
-
-
 
     const handleSendForApproval = () => {
         if (!docNo) return;
@@ -164,8 +161,6 @@ const TravelAdvanceRequisition: React.FC = () => {
             />
             {status === 'pending' ? (
                 <Skeleton paragraph={{ rows: 4 }} />
-            ) : error ? (
-                <Typography.Text>{error}</Typography.Text>
             ) : (
                 <>
                     {contextHolder}
@@ -185,7 +180,7 @@ const TravelAdvanceRequisition: React.FC = () => {
                         )}
                         <Card style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
                             {docNo ? (
-                                <EditAdvanceHeader documentNumber={docNo} paymentData={document} />
+                                <EditAdvanceHeader documentNumber={docNo} paymentData={imprestDocument} />
                             ) : (
                                 <TravelAdvanceHeader onSubmit={handleHeaderSubmit} />
                             )}
@@ -195,16 +190,12 @@ const TravelAdvanceRequisition: React.FC = () => {
                                 <>
                                     {lineStatus === 'pending' ? (
                                         <Skeleton paragraph={{ rows: 4 }} />
-                                    ) : lineError ? (
-                                        <Typography.Text type="danger">{lineError}</Typography.Text>
                                     ) : (
                                         <AdvanceRequestLines
-                                            documentStatus={document?.status}
+                                            documentStatus={imprestDocument?.status}
                                             requestLines={imprestLines}
-                                            listOfExpenditureTypes={document?.listOfExpenditureTypes || []}
-                                            listOfActivities={document?.listOfActivities || []}
-                                            listofProjectCodes={document?.listOfProjectCodes || []}
-                                            documentDetails={document}
+                                           listOfExpenditureTypes={imprestDocument?.listOfExpenditureTypes}
+                                            documentDetails={imprestDocument}
 
                                         />
                                     )}

@@ -52,6 +52,32 @@ export const receptionRoutes = [
             // },
         ],
     },
+    {
+        key: '/finance',
+        icon: <ReconciliationOutlined />,
+        label: 'Finance',
+        children: [
+            {
+                key: '/finance/Travel-advance-list',
+                icon: <ReconciliationOutlined />,
+                label: 'Imprest Requests',
+            },
+            //   {
+            //     key: '/finance/Advance-surrender-list',
+            //     icon: <ReconciliationOutlined />,
+            //     label: 'Imprest Surrender',
+            // },
+            // {
+            //     key: '/finance/Staff-Claim-list',
+            //     icon: <DollarOutlined />,
+            //     label: 'Staff Claim',
+            // }
+        ]
+    },
+
+          
+
+
     // {
     //     key: '/training',
     //     icon: <ReconciliationOutlined />,
@@ -104,30 +130,7 @@ export const receptionRoutes = [
     //         },
     //     ],
     // },
-    // {
-    //     key: '/finance',
-    //     icon: <ReconciliationOutlined />,
-    //     label: 'Finance',
-    //     children: [
-    //         {
-    //             key: '/finance/Travel-advance-list',
-    //             icon: <ReconciliationOutlined />,
-    //             label: 'Travel Advance',
-    //         },
 
-    //         {
-    //             key: '/finance/Advance-surrender-list',
-    //             icon: <ReconciliationOutlined />,
-    //             label: 'Imprest Surrender',
-    //         },
-    //         {
-    //             key: '/finance/Staff-Claim-list',
-    //             icon: <DollarOutlined />,
-    //             label: 'Staff Claim',
-    //         }
-
-    //     ],
-    // },
     // {
     //     key: '/logistics',
     //     icon: <CarOutlined />,

@@ -14,46 +14,39 @@ import {
   EditOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
-import type {
-  DimensionValues,
-  ExpenditureTypes,
-  JobPlanningLines,
-  PaymentData,
-  PaymentLinesData,
-} from '../../../../types/PaymentData';
+
 import { formatCurrencyUSD } from '../../../../utils/currencyFormmatter';
 import AdvanceRequestLineModal from './AdvanceRequestLineModal';
 import { useAppDispatch } from '../../../../hooks/ReduxHooks';
 import { deleteLineItem } from '../../../../features/common/deleteLineItem';
-import { fetchImprestLines, fetchPaymentDocumentLines } from '../../../../features/finance/commonRequest';
+
+import { fetchImprestLine, type ImprestData, type ImprestLinesData } from '../../../../features/finance/advanceRequisition';
+import type { DropdownOptions } from '../../../../types/dropdown';
 
 interface RequestLinesProps {
   documentStatus?: string | null;
-  requestLines: PaymentLinesData[];
-  listOfExpenditureTypes: ExpenditureTypes[];
-  listOfActivities: JobPlanningLines[];
-  listofProjectCodes: DimensionValues[];
-  documentDetails?: PaymentData | null;
+  requestLines: ImprestLinesData[];
+  listOfExpenditureTypes: DropdownOptions[];
+  
+  documentDetails?: ImprestData | null;
 }
 
 const AdvanceRequestLines: React.FC<RequestLinesProps> = ({
   requestLines,
   listOfExpenditureTypes,
-  listOfActivities,
-  listofProjectCodes,
   documentStatus,
   documentDetails,
 }) => {
   const dispatch = useAppDispatch();
   const [modalVisible, setModalVisible] = React.useState(false);
   const [editingLine, setEditingLine] = React.useState<
-    PaymentLinesData | undefined
+    ImprestLinesData | undefined
   >(undefined);
 
   const [modal, modalContextHolder] = Modal.useModal();
   const [api, notificationHolder] = notification.useNotification();
 
-  const confirmDelete = (record: PaymentLinesData) => {
+  const confirmDelete = (record: ImprestLinesData) => {
     modal.confirm({
       title: 'Delete Line Item',
       icon: <DeleteOutlined />,
@@ -65,7 +58,7 @@ const AdvanceRequestLines: React.FC<RequestLinesProps> = ({
     });
   };
 
-  const handleDeleteLine = (record: PaymentLinesData) => {
+  const handleDeleteLine = (record: ImprestLinesData) => {
     dispatch(
       deleteLineItem({
         docNo: documentDetails?.paymentNo || '',
@@ -81,7 +74,7 @@ const AdvanceRequestLines: React.FC<RequestLinesProps> = ({
           duration: 3,
           onClose: () =>
             dispatch(
-              fetchImprestLines({
+              fetchImprestLine({
                 documentNo: documentDetails?.paymentNo || '',
               })
             ),
@@ -95,17 +88,18 @@ const AdvanceRequestLines: React.FC<RequestLinesProps> = ({
       });
   };
 
-
+console.log('imprestLines', requestLines);
   const baseColumns: any[] = [
     { title: 'Line No', dataIndex: 'lineNo', key: 'lineNo' },
-    { title: 'Project Name', dataIndex: 'projectName', key: 'projectName' },
+    {title:'PERDIEMS', dataIndex: 'expenditureType', key: 'expenditureType'},
+    
     { title: 'Account Name', dataIndex: 'accountName', key: 'accountName' },
-    { title: 'Task Name', dataIndex: 'taskName', key: 'taskName' },
-    { title: 'No of Days', dataIndex: 'noOfDays', key: 'noOfDays' },
+    
+   
     {
-      title: 'Daily Rate',
-      dataIndex: 'dailyRate',
-      key: 'dailyRate',
+      title: 'Amount',
+      dataIndex: 'lineAmount',
+      key: 'lineAmount',
       render: (amount: number) => (
         <span style={{ color: 'green', fontWeight: 600 }}>
           {formatCurrencyUSD(amount)}
@@ -128,7 +122,7 @@ const AdvanceRequestLines: React.FC<RequestLinesProps> = ({
     baseColumns.push({
       title: 'Actions',
       key: 'actions',
-      render: (_: any, record: PaymentLinesData) => (
+    render: (_: any, record: ImprestLinesData) => (
         <Space size="small">
           <Tooltip title="Edit line">
             <Button
@@ -186,9 +180,7 @@ const AdvanceRequestLines: React.FC<RequestLinesProps> = ({
           setModalVisible(false);
           setEditingLine(undefined);
         }}
-        listofExpenditureTypes={listOfExpenditureTypes}
-        listOfActivities={listOfActivities}
-        listofProjectCodes={listofProjectCodes}
+       listofExpenditureTypes={listOfExpenditureTypes}
         initialLine={editingLine}
         documentDetails={documentDetails}
       />

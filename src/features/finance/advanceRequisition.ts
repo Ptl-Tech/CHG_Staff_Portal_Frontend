@@ -1,14 +1,51 @@
-import type { Destination, PaymentData, PaymentLinesData } from './../../types/PaymentData';
+import type { Destination } from './../../types/PaymentData';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { getPersistedTokens } from '../../utils/token';
 import type { RootState } from '../../app/store';
-import type { StatusRequestResponse } from '../../types/dropdown';
+import type { DropdownOptions, StatusRequestResponse } from '../../types/dropdown';
 import { message } from 'antd';
 
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 
-// --- State Type ---
+// --- Data Models ---
+export interface ImprestData {
+  paymentNo: string;
+  dateRequested: string;
+  employeeNo: string;
+  status: string;
+  purpose: string;
+  releaseDate: string;
+  totalAmount: number;
+  responsibilityCenter: string;
+  listOfExpenditureTypes: DropdownOptions[];
+}
+
+export interface ImprestLinesData {
+  lineNo: number;
+  documentNo: string;
+  expenditureType: string;
+  accountNo: string;
+  accountName: string;
+  lineAmount: number;
+}
+
+interface ImprestRequestPayload {
+  docNo: string;
+  dateRequested: string;
+  employeeNo: string;
+  responsibilityCenter: string;
+  purpose: string;
+}
+
+export interface ImprestLinesPayload {
+  documentNo: string;
+  lineNo: number;
+  expenditureType: string;
+  amount: number;
+}
+
+// --- State Types ---
 interface OperationState {
   status: 'idle' | 'pending' | 'failed';
   response: StatusRequestResponse | null;
@@ -16,14 +53,21 @@ interface OperationState {
 }
 
 interface AdvanceRequestState {
-  imprestList: PaymentData[];
-  imprestPayload: PaymentData | null;
+  imprestList: ImprestData[];
+  imprestLines: ImprestLinesData[];
+  imprestDocument: ImprestData | null;
+  imprestPayload: ImprestRequestPayload | null;
   destinationList: Destination[];
-  imprestLinePayload: PaymentData | null;
+  imprestLinePayload: ImprestLinesData | null;
 
-  fetchStatus: 'idle' | 'pending' | 'failed';
+  fetchListStatus: 'idle' | 'pending' | 'failed';
+  fetchDocumentStatus: 'idle' | 'pending' | 'failed';
+  fetchLinesStatus: 'idle' | 'pending' | 'failed';
+
   travelSubmit: OperationState;
   lineSubmit: OperationState;
+
+  error: string | null;
 }
 
 const initialOperationState: OperationState = {
@@ -34,17 +78,23 @@ const initialOperationState: OperationState = {
 
 const initialState: AdvanceRequestState = {
   imprestList: [],
+  imprestLines: [],
+  imprestDocument: null,
   imprestPayload: null,
   destinationList: [],
   imprestLinePayload: null,
-  fetchStatus: 'idle',
+  fetchListStatus: 'idle',
+  fetchDocumentStatus: 'idle',
+  fetchLinesStatus: 'idle',
   travelSubmit: { ...initialOperationState },
   lineSubmit: { ...initialOperationState },
+  error: null,
 };
 
 // --- Thunks ---
+// Fetch list of advance requests
 export const fetchAdvanceRequestList = createAsyncThunk<
-  PaymentData[],
+  ImprestData[],
   void,
   { rejectValue: { message: string } }
 >(
@@ -58,7 +108,7 @@ export const fetchAdvanceRequestList = createAsyncThunk<
           'BC-Authorization': bcToken || '',
         },
       });
-      return data as PaymentData[];
+      return data as ImprestData[];
     } catch (err: any) {
       return rejectWithValue({
         message:
@@ -70,31 +120,61 @@ export const fetchAdvanceRequestList = createAsyncThunk<
   }
 );
 
-export const fetchDestinationList = createAsyncThunk<
-  Destination[],
-  void,
+// Fetch imprest document
+export const fetchImprestDocument = createAsyncThunk<
+  ImprestData,
+  { documentNo: string },
   { rejectValue: { message: string } }
 >(
-  'advance/fetchDestinationList',
-  async (_, { rejectWithValue }) => {
+  'advance/fetchImprestDocument',
+  async ({ documentNo }, { rejectWithValue }) => {
     try {
       const { token, bcToken } = getPersistedTokens();
-      const { data } = await axios.get(
-        `${API_ENDPOINT}/Finance/destination-dropdowns`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'BC-Authorization': bcToken || '',
-          },
-        }
-      );
-      return data as Destination[];
+      const url = `${API_ENDPOINT}/Finance/Imprest-Document?docNo=${encodeURIComponent(documentNo)}`;
+      const { data } = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'BC-Authorization': bcToken || '',
+        },
+      });
+      return data as ImprestData;
     } catch (err: any) {
       return rejectWithValue({
         message:
           err?.response?.data?.message ||
           err?.message ||
-          'Failed to fetch destination list',
+          'Failed to fetch Imprest document',
+      });
+    }
+  }
+);
+
+// Fetch imprest lines
+export const fetchImprestLine = createAsyncThunk<
+  ImprestLinesData[],
+  { documentNo: string },
+  { rejectValue: { message: string } }
+>(
+  'advance/fetchImprestLine',
+  async ({ documentNo }, { rejectWithValue }) => {
+    try {
+      const { token, bcToken } = getPersistedTokens();
+      const url = `${API_ENDPOINT}/Finance/all-imprest-lines?docNo=${encodeURIComponent(documentNo)}`;
+      const { data } = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'BC-Authorization': bcToken || '',
+        },
+      });
+
+      console.log('data', data);
+      return data as ImprestLinesData[];
+    } catch (err: any) {
+      return rejectWithValue({
+        message:
+          err?.response?.data?.message ||
+          err?.message ||
+          'Failed to fetch Imprest Lines',
       });
     }
   }
@@ -103,7 +183,7 @@ export const fetchDestinationList = createAsyncThunk<
 // Submit new travel request
 export const submitTravelAdvanceRequest = createAsyncThunk<
   StatusRequestResponse,
-  PaymentData,
+  ImprestRequestPayload,
   { rejectValue: { message: string } }
 >(
   'advance/submitTravelAdvanceRequest',
@@ -122,26 +202,27 @@ export const submitTravelAdvanceRequest = createAsyncThunk<
       );
       return data;
     } catch (err: any) {
+      console.log("error", err);
       const msg =
-        err?.response?.data?.message ||
+        err?.response?.data?.error ||
         err?.message ||
-        'Travel Advance Request submission failed';
+        'Failed to submit Imprest Request';
       message.error(msg);
       return rejectWithValue({ message: msg });
     }
   }
 );
 
+// Submit imprest line
 export const submitImprestLine = createAsyncThunk<
-  StatusRequestResponse,          // Return type
-  PaymentLinesData,               // Payload type
-  { rejectValue: { message: string } } // reject type
+  StatusRequestResponse,
+  ImprestLinesPayload,
+  { rejectValue: { message: string } }
 >(
   'advance/submitImprestLine',
-  async (payloadData, { rejectWithValue })=> {
+  async (payloadData, { rejectWithValue }) => {
     try {
       const { token, bcToken } = getPersistedTokens();
-
       const { data } = await axios.post(
         `${API_ENDPOINT}/Finance/add-imprest-lines`,
         payloadData,
@@ -152,16 +233,15 @@ export const submitImprestLine = createAsyncThunk<
           },
         }
       );
-
-      // Ensure data matches StatusRequestResponse type
       return {
+        ...data,
         status: data.status,
         description: data.description,
       } as StatusRequestResponse;
-
     } catch (err: any) {
       const msg =
-        err?.response?.data?.message ||
+        err?.response?.data?.errors ||
+        err?.response?.data?.error||
         err?.message ||
         'Imprest Line submission failed';
       message.error(msg);
@@ -169,8 +249,6 @@ export const submitImprestLine = createAsyncThunk<
     }
   }
 );
-
-
 
 // --- Slice ---
 const advanceRequestSlice = createSlice({
@@ -180,35 +258,48 @@ const advanceRequestSlice = createSlice({
     clearError(state) {
       state.travelSubmit.error = null;
       state.lineSubmit.error = null;
-      state.imprestList = state.imprestList; // no-op placeholder if needed
+      state.error = null;
     },
-    // you can add more local mutations here if needed later
   },
   extraReducers: (builder) => {
     builder
       // fetch advance list
       .addCase(fetchAdvanceRequestList.pending, (state) => {
-        state.fetchStatus = 'pending';
+        state.fetchListStatus = 'pending';
       })
       .addCase(fetchAdvanceRequestList.fulfilled, (state, action) => {
-        state.fetchStatus = 'idle';
+        state.fetchListStatus = 'idle';
         state.imprestList = action.payload;
       })
       .addCase(fetchAdvanceRequestList.rejected, (state, action) => {
-        state.fetchStatus = 'failed';
-        // could store in a dedicated error field if you want
+        state.fetchListStatus = 'failed';
+        state.error = action.payload?.message || 'Failed to fetch advance list';
       })
 
-      // fetch destination list
-      .addCase(fetchDestinationList.pending, (state) => {
-        state.fetchStatus = 'pending';
+      // fetch imprest document
+      .addCase(fetchImprestDocument.pending, (state) => {
+        state.fetchDocumentStatus = 'pending';
       })
-      .addCase(fetchDestinationList.fulfilled, (state, action) => {
-        state.fetchStatus = 'idle';
-        state.destinationList = action.payload;
+      .addCase(fetchImprestDocument.fulfilled, (state, action) => {
+        state.fetchDocumentStatus = 'idle';
+        state.imprestDocument = action.payload;
       })
-      .addCase(fetchDestinationList.rejected, (state) => {
-        state.fetchStatus = 'failed';
+      .addCase(fetchImprestDocument.rejected, (state, action) => {
+        state.fetchDocumentStatus = 'failed';
+        state.error = action.payload?.message || 'Failed to fetch imprest document';
+      })
+
+      // fetch imprest lines
+      .addCase(fetchImprestLine.pending, (state) => {
+        state.fetchLinesStatus = 'pending';
+      })
+      .addCase(fetchImprestLine.fulfilled, (state, action) => {
+        state.fetchLinesStatus = 'idle';
+        state.imprestLines = action.payload;
+      })
+      .addCase(fetchImprestLine.rejected, (state, action) => {
+        state.fetchLinesStatus = 'failed';
+        state.error = action.payload?.message || 'Failed to fetch imprest lines';
       })
 
       // travel advance submission
@@ -246,11 +337,22 @@ const advanceRequestSlice = createSlice({
 });
 
 // --- Selectors ---
-export const selectAdvanceImprestList = (state: RootState) => state.advanceRequests;
+export const selectAdvanceImprestList = (state: RootState) => ({
+  imprestList: state.advanceRequests.imprestList,
+  status: state.advanceRequests.fetchListStatus,
+  error: state.advanceRequests.error,
+});
 
-export const selectDestinationList = (state: RootState) => ({
-  destinationList: state.advanceRequests.destinationList,
-  status: state.advanceRequests.fetchStatus,
+export const selectImprestDocument = (state: RootState) => ({
+  imprestDocument: state.advanceRequests.imprestDocument,
+  status: state.advanceRequests.fetchDocumentStatus,
+  error: state.advanceRequests.error,
+});
+
+export const selectImprestLines = (state: RootState) => ({
+  imprestLines: state.advanceRequests.imprestLines,
+  status: state.advanceRequests.fetchLinesStatus,
+  error: state.advanceRequests.error,
 });
 
 export const selectSubmitAdvanceRequest = (state: RootState) => ({

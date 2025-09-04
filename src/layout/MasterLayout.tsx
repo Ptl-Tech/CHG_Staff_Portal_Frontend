@@ -1,8 +1,6 @@
 import React, { Children, useEffect, useState } from 'react';
 import { Avatar, Button, Dropdown, Layout, Menu, type MenuProps } from 'antd';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import ChiromoLogo from '../assets/images/ChiromoLogo.png';
-import zamzamlg from '../assets/images/zamzamlg.jpg';
 const { Header, Footer, Sider, Content } = Layout;
 import {
   AppstoreOutlined,
@@ -21,7 +19,6 @@ import {
 } from '@ant-design/icons';
 import SignOut from '../auth/SignOut';
 // Dummy route definitions (replace with your real ones)
-import bgImage from '../assets/images/ChiromoBg.png';
 import smallLogo from '../assets/images/smallLogo.png';
 import logo from '../assets/images/logo.png';
 
@@ -107,7 +104,7 @@ const items: MenuProps["items"] = [
       <Layout style={{ marginTop: 64 }}>
         <Sider
           breakpoint="lg"
-          width={250}
+        //  width={250}
           collapsible
           collapsedWidth={0}
           collapsed={collapsed}
@@ -147,13 +144,13 @@ const items: MenuProps["items"] = [
         </Sider>
         <Layout
           style={{
-            marginLeft: collapsed ? 80 : 250,
+            marginLeft: collapsed ? 80 : 230,
             transition: "all 0.2s",
             padding: 24,
             background: "#fff",
             height: "100vh",
             overflowY: "auto",
-            marginTop: 64,
+            marginTop: 24,
             zIndex: 1,
           }}
         >

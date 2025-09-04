@@ -24,7 +24,7 @@ const TravelAdvanceList: React.FC = () => {
 console.log("imprestList", imprestList);
     // Grouped Data
     const grouped = {
-        open: imprestList.filter((req) => req.status?.toLowerCase() === 'open'),
+        open: imprestList.filter((req) => req.status?.toLowerCase() === 'pending'),
         pending: imprestList.filter((req) => req.status?.toLowerCase() === 'pending approval'),
         released: imprestList.filter((req) => req.status?.toLowerCase() === 'approved'),
     };
@@ -52,8 +52,8 @@ console.log("imprestList", imprestList);
         },
         {
             title: "Reason Description",
-            dataIndex: 'paymentNarration',
-            key: 'paymentNarration',
+            dataIndex: 'purpose',
+            key: 'purpose',
             render: (text: string | null | undefined) =>
                 text && text.trim() !== '' ? (
                     <Text style={{ cursor: 'pointer', textTransform: "capitalize" }}>
@@ -66,11 +66,7 @@ console.log("imprestList", imprestList);
                 ),
         },
 
-        {
-            title: "Destination",
-            dataIndex: 'destination',
-            key: 'destination',
-        },
+       
         {
             title: 'Status',
             dataIndex: 'status',
@@ -123,10 +119,10 @@ console.log("imprestList", imprestList);
 
     return (
         <>
-            <Card title="Travel Advance Requests" style={{ margin: '20px' }}
+            <Card title="Imprest Requests" style={{ margin: '20px' }}
                 extra={
                     <Button type="primary" onClick={() => navigate('/finance/Travel-Advance')}>
-                        New Travel Advance Request</Button>}>
+                        New Imprest Request</Button>}>
 
                 {status === 'pending' ? (
                     <Skeleton active paragraph={{ rows: 4 }} />

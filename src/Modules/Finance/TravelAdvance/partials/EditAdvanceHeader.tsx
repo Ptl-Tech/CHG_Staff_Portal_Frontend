@@ -22,22 +22,24 @@ import { useAppDispatch, useAppSelector } from '../../../../hooks/ReduxHooks';
 import type { PaymentData } from '../../../../types/PaymentData';
 
 import {
-    fetchDestinationList,
-    selectDestinationList,
+
+    fetchImprestDocument,
     selectSubmitAdvanceRequest,
     submitTravelAdvanceRequest,
+    type ImprestData,
 } from '../../../../features/finance/advanceRequisition';
 import { fetchDocuments, selectDocumentsList } from '../../../../features/common/documents';
 
 import ApprovalTrailModal from '../../../../components/ApprovalTrailModal';
 import DocumentList from '../../../Documents/DocumentList';
+import { fetchResponsibilityCenters, selectResponsibilityCenters } from '../../../../features/common/commonSetups';
 
 const { TextArea } = Input;
 const { Option } = Select;
 
 interface HeaderProps {
     documentNumber: string;
-    paymentData: PaymentData | null;
+    paymentData: ImprestData | null;
 }
 
 const EditAdvanceHeader: React.FC<HeaderProps> = ({ documentNumber, paymentData }) => {
@@ -45,70 +47,54 @@ const EditAdvanceHeader: React.FC<HeaderProps> = ({ documentNumber, paymentData 
     const [form] = Form.useForm();
     const docNo = new URLSearchParams(window.location.search).get('DocumentNo');
 
-    const { destinationList, status: destStatus } = useAppSelector(selectDestinationList);
     const { status } = useAppSelector(selectSubmitAdvanceRequest);
     const { documents } = useAppSelector(selectDocumentsList);
-
+    const { responsibilityCenters, status: destStatus } = useAppSelector(selectResponsibilityCenters);
     const [isReadOnly, setIsReadOnly] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
     const [documentListVisible, setDocumentListVisible] = useState(false);
     const [api, contextHolder] = notification.useNotification();
 
     useEffect(() => {
-        if (paymentData && !form.isFieldsTouched()) {
+        if (paymentData) {
             form.setFieldsValue({
-                ...paymentData,
-                travelDate: paymentData.travelDate ? moment(paymentData.travelDate) : null,
-                completionDate: paymentData.completionDate ? moment(paymentData.completionDate) : null,
+                purpose: paymentData.purpose,
+                responsibilityCenter: paymentData.responsibilityCenter,
+                dateRequested: paymentData.dateRequested ? moment(paymentData.dateRequested) : null,
             });
         }
     }, [form, paymentData]);
 
     useEffect(() => {
-        dispatch(fetchDestinationList());
+        dispatch(fetchResponsibilityCenters());
     }, [dispatch]);
+    // useEffect(() => {
+    //     if (docNo) {
+    //         dispatch(fetchDocuments({ tableId: 50126, docNo }));
+    //     }
+    // }, [docNo, dispatch]);
 
-    useEffect(() => {
-        if (docNo) {
-            dispatch(fetchDocuments({ tableId: 50126, docNo }));
-        }
-    }, [docNo, dispatch]);
 
-    const handleDestinationChange = (value: string) => {
-        const selected = destinationList.find((d: any) => d.destinationCode === value);
-        form.setFieldsValue({ travelType: selected?.travelType || undefined });
-    };
 
-    const onValuesChange = () => {
-        const travelDate = form.getFieldValue('travelDate');
-        const returnDate = form.getFieldValue('completionDate');
 
-        if (travelDate && returnDate) {
-            const diff = returnDate.diff(travelDate, 'day');
-            form.setFieldsValue({ noOfDays: diff > 0 ? diff : 0 });
-        }
-    };
 
     const SubmitHeader = async () => {
-        const values = form.getFieldsValue();
-        const travelTypeVal =
-            typeof values.travelType === 'string' && values.travelType.toLowerCase() === 'local' ? 1 : 0;
+        const values = await form.validateFields();
 
         const payload = {
-            paymentNo: documentNumber,
-            destination: values.destination,
-            travelType: travelTypeVal,
-            travelDate: values.travelDate.format('YYYY-MM-DD'),
-            completionDate: values.completionDate.format('YYYY-MM-DD'),
-            noOfDays: values.noOfDays,
-            paymentNarration: values.paymentNarration,
+            docNo: documentNumber,
+            requestDate: moment().format('YYYY-MM-DD'),
+            ...values
         };
-console.log('imprest payload', payload);
+        console.log('imprest payload', payload);
         const res = await dispatch(submitTravelAdvanceRequest(payload)).unwrap();
         api.success({
             message: 'Success',
-            description: `Advance header updated successfully. Document No: ${res.description}`,
+            description: res.description,
         });
+
+        dispatch(fetchImprestDocument({ documentNo: documentNumber }));
+
     };
 
     const commonProps = { readOnly: isReadOnly };
@@ -124,7 +110,6 @@ console.log('imprest payload', payload);
                     layout="vertical"
                     onFinish={SubmitHeader}
                     autoComplete="off"
-                    onValuesChange={onValuesChange}
                 >
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginBottom: 16 }}>
                         <Tooltip title="File Attachment">
@@ -162,104 +147,49 @@ console.log('imprest payload', payload);
                     <Row gutter={16}>
                         <Col span={12}>
                             <Form.Item
-                                label="Destination"
-                                name="destination"
-                                rules={[{ required: true, message: 'Please select a destination' }]}
-                            >
-                                <Select
-                                    placeholder="Select destination"
-                                    showSearch
-                                    optionFilterProp="children"
-                                    onChange={handleDestinationChange}
-                                    allowClear
-                                    {...commonProps}
-                                >
-                                    {destinationList.map((d: any) => (
-                                        <Option key={d.destinationCode} value={d.destinationCode}>
-                                            {d.destinationName}
-                                        </Option>
-                                    ))}
-                                </Select>
-                            </Form.Item>
-                        </Col>
-
-                        <Col span={12}>
-                            <Form.Item
-                                label="Travel Type"
-                                name="travelType"
-                                rules={[{ required: true, message: 'Travel type is required' }]}
-                            >
-                                <Input placeholder="Auto-filled based on destination" readOnly />
-                            </Form.Item>
-                        </Col>
-
-                        <Col span={12}>
-                            <Form.Item
-                                label="Travel Date"
-                                name="travelDate"
+                                label="Request Date"
+                                name="dateRequested"
                                 rules={[{ required: true, message: 'Please select travel date' }]}
                             >
                                 <DatePicker
                                     style={{ width: '100%' }}
                                     format="DD/MM/YYYY"
                                     disabledDate={(current) => current && current < moment().startOf('day')}
-                                    {...commonProps}
                                 />
                             </Form.Item>
                         </Col>
 
-                        <Col span={12}>
-                            <Form.Item
-                                label="Return Date"
-                                name="completionDate"
-                                rules={[{ required: true, message: 'Please select completion date' }]}
-                            >
-                                <DatePicker
-                                    style={{ width: '100%' }}
-                                    format="DD/MM/YYYY"
-                                    disabledDate={(current) => {
-                                        const travelDate = form.getFieldValue('travelDate');
-                                        const min = travelDate
-                                            ? moment(travelDate).startOf('day')
-                                            : moment().startOf('day');
-                                        return current && current < min;
-                                    }}
-                                    {...commonProps}
-                                />
-                            </Form.Item>
-                        </Col>
 
                         <Col span={12}>
                             <Form.Item
-                                label="Number of Days"
-                                name="noOfDays"
-                                rules={[{ required: true, message: 'Number of days is required' }]}
+                                label="Responsibility Center"
+                                name="responsibilityCenter"
+                                rules={[{ required: true, message: 'Please enter the responsibility center' }]}
                             >
-                                <InputNumber min={1} style={{ width: '100%' }} readOnly />
+                                <Select placeholder="Select Responsibility Center">
+                                    {responsibilityCenters.map((center) => (
+                                        <Option key={center.code} value={center.code}>{center.description}</Option>
+                                    ))}
+                                </Select>
                             </Form.Item>
                         </Col>
 
-                        <Col span={12}>
-                            <Form.Item label="Status" name="status">
-                                <Input readOnly />
-                            </Form.Item>
-                        </Col>
+
+
 
                         <Col span={24}>
-                            <Form.Item label="Description" name="paymentNarration">
-                                <TextArea rows={4} {...commonProps} />
+                            <Form.Item label="Description" name="purpose" rules={[{ required: true, message: 'Please enter description' }]}>
+                                <TextArea rows={4} />
                             </Form.Item>
                         </Col>
 
-                        {!isReadOnly && (
-                            <Col span={24} style={{ textAlign: 'right' }}>
-                                <Form.Item>
-                                    <Button type="primary" htmlType="submit">
-                                        Save
-                                    </Button>
-                                </Form.Item>
-                            </Col>
-                        )}
+                        <Col span={24} style={{ textAlign: 'right' }}>
+                            <Form.Item>
+                                <Button type="primary" htmlType="submit">
+                                    Submit Request
+                                </Button>
+                            </Form.Item>
+                        </Col>
                     </Row>
                 </Form>
             )}

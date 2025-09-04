@@ -13,7 +13,7 @@ import {
 import { EyeInvisibleOutlined, EyeOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../hooks/ReduxHooks';
-import { login, selectAuth } from '../features/auth/authSlice';
+import {  loginUser, selectAuth } from '../features/auth/authSlice';
 import loginImg from '../assets/images/loginImg.jpg';
 import logoLogin from '../assets/images/logoLogin.png';
 import zamzamlg from '../assets/images/zamzamlg.jpg'; // Assuming this is the new logo
@@ -26,8 +26,7 @@ type UserData = {
 const Login: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-
-  const { status, error, token, message } = useAppSelector(selectAuth);
+const {  error, token, message } = useAppSelector(selectAuth);
   const [showPassword, setShowPassword] = useState(false);
   const [api, contextHolder] = notification.useNotification();
 
@@ -41,7 +40,7 @@ const Login: React.FC = () => {
         message: 'Success',
         description: message,
         style: {
-          // backgroundColor: '#52c41a',
+         // backgroundColor: '#52c41a',
           borderColor: '#52c41a',
           color: '#fff',
           fontWeight: 'semibold'
@@ -55,12 +54,12 @@ const Login: React.FC = () => {
   }, [token, navigate]);
 
   useEffect(() => {
-    if (status === 'failed' && error) {
+    if ( error) {
       api.error({
         message: 'Error',
         description: error,
-        style: {
-          // backgroundColor: '#ff4d4f',
+        style:{
+         // backgroundColor: '#ff4d4f',
           borderColor: '#ff4d4f',
           color: '#fff',
           fontWeight: 'semibold'
@@ -71,11 +70,15 @@ const Login: React.FC = () => {
         }
       })
     }
-  }, [status, error]);
+  }, [error]);
 
-  const handleLogin: FormProps<UserData>['onFinish'] = (values) => {
-    dispatch(login(values));
+  const handleLogin: FormProps['onFinish'] = (values) => {
+
+
+
+    dispatch(loginUser({ staffNo: values.StaffNo, password: values.Password }) as any);
   };
+
 
   return (
     <div className="d-flex justify-content-center align-items-center min-vh-100"

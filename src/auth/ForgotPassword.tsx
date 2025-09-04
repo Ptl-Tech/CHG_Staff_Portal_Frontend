@@ -106,8 +106,8 @@ const ForgotPassword: React.FC = () => {
               </Form.Item>
             </Form>
             <div style={{ textAlign: 'right' }}>
-              <a href="/login" style={{ fontSize: '14px', color: '#888' }}>
-                <u>Go back to Login</u>
+              <a href="/login" style={{ fontSize: '11px', color: '#888' }}>
+                <u>Go back to Login?</u>
               </a>
             </div>
           </Space>

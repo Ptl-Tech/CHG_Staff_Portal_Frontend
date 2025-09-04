@@ -273,11 +273,6 @@ export const selectSurrenderLines=(state:RootState)=>({
   error:state.paymentsRequest.linesError
 })
 
-export const selectImprestLines=(state:RootState)=>({
-  imprestLines:state.paymentsRequest.imprestLines,
-  status:state.paymentsRequest.linesStatus,
-  error:state.paymentsRequest.linesError
-})
 
 // --- Exports ---
 export const {

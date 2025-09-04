@@ -6,10 +6,10 @@ import { rootReducer } from './rootReducer';
 import { createLogger } from 'redux-logger';
 
 const persistConfig = {
-  key: 'root',
+  key: 'auth',
   storage,
-  version: 1,
-whitelist: ['auth',  'leaveDropdowns',  'commonSetup'], // specify which reducers to persist
+//  version: 1,
+  whitelist: ['auth'], // only auth will be persisted
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
