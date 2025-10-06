@@ -1,4 +1,3 @@
-// src/features/leave/LeaveApplicationForm.tsx
 import React, { useEffect, useState } from 'react';
 import {
     Form,
@@ -68,15 +67,13 @@ const EditAdvanceHeader: React.FC<HeaderProps> = ({ documentNumber, paymentData 
     useEffect(() => {
         dispatch(fetchResponsibilityCenters());
     }, [dispatch]);
+
+
     // useEffect(() => {
     //     if (docNo) {
     //         dispatch(fetchDocuments({ tableId: 50126, docNo }));
     //     }
     // }, [docNo, dispatch]);
-
-
-
-
 
     const SubmitHeader = async () => {
         const values = await form.validateFields();
@@ -183,7 +180,7 @@ const EditAdvanceHeader: React.FC<HeaderProps> = ({ documentNumber, paymentData 
                             </Form.Item>
                         </Col>
 
-                        <Col span={24} style={{ textAlign: 'right' }}>
+                        <Col span={24} style={{ textAlign: 'right', display:isReadOnly ? 'none' : 'block' }}>
                             <Form.Item>
                                 <Button type="primary" htmlType="submit">
                                     Submit Request

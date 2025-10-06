@@ -1,4 +1,3 @@
-// src/features/leave/LeaveApplicationForm.tsx
 import React, { useEffect, useState } from 'react';
 import {
     Form,
@@ -46,20 +45,18 @@ const VehicleRequestForm: React.FC = () => {
     const [isHeaderPinned, setIsHeaderPinned] = useState(true);
     const [docNumber, setDocNumber] = useState<string | null>(null);
 
-    // Fetch request if editing
     useEffect(() => {
         if (documentNo) {
             dispatch(fetchVehicleRequest(documentNo));
         }
     }, [dispatch, documentNo]);
 
-    // Populate form with document data
     useEffect(() => {
         if (document) {
             form.setFieldsValue({
                 documentNo: document.documentNo,
                 requestDate: document.requestDate ? moment(document.requestDate) : null,
-                requestor: document.requestor, // Ensure backend sends staff code, not just name
+                requestor: document.requestor, 
                 etd: document.deptTime ? moment(document.deptTime, 'HH:mm:ss') : null,
                 etr: document.returnTime ? moment(document.returnTime, 'HH:mm:ss') : null,
                 travelDestination: document.travelDestination,
@@ -76,12 +73,11 @@ const VehicleRequestForm: React.FC = () => {
         }
     }, [form, document]);
 
-    // Fetch staff list
     useEffect(() => {
         dispatch(fetchEmployeeList());
     }, [dispatch]);
 
-    const handleFinish = async (values: VehicleRequest) => {
+    const handleFinish = async (values: any) => {
         const payload = {
             ...values,
             documentNo:documentNo || '',
@@ -121,25 +117,11 @@ const VehicleRequestForm: React.FC = () => {
         }
     };
 
-    const handleSendForApproval = () => {
-        console.log('Send for approval');
-    };
 
-    const handleCancelApproval = () => {
-        console.log('Cancel approval');
-    };
 
     return (
         <div>
-            {/* <PageHeader
-                title="Vehicle Request Form"
-                isPinned={isHeaderPinned}
-                onTogglePin={() => setIsHeaderPinned(!isHeaderPinned)}
-                showActions={true}
-                onSendForApproval={handleSendForApproval}
-                onCancelApproval={handleCancelApproval}
-            /> */}
-
+           
             <Card title="Vehicle Request Form" style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column' }} extra={
                 <Button type='link' icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)}>Back</Button>
             }>

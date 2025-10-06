@@ -1,4 +1,3 @@
-// src/features/leave/LeaveApplicationForm.tsx
 import React, { useEffect } from 'react';
 import {
     Form,
@@ -67,7 +66,7 @@ const TravelAdvanceSurrenderForm: React.FC = () => {
         dispatch(
             sendForApproval({
                 docNo: docNo,
-                endpoint: `/Finance/send-approval?docNo=${docNo}`, // use `leaveNo` not `docNo`
+                endpoint: `/Finance/cancel-surrender-approval?docNo=${docNo}`,
             })
         )
             .unwrap()
@@ -113,7 +112,7 @@ const TravelAdvanceSurrenderForm: React.FC = () => {
         dispatch(
             cancelApproval({
                 docNo: docNo,
-                endpoint: `/Finance/cancel-approval?docNo=${docNo}`, // use `leaveNo` not `docNo`
+                endpoint: `/Finance/send-surrender-approval?docNo=${docNo}`, 
             })
         )
             .unwrap()

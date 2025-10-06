@@ -1,4 +1,3 @@
-// src/features/leave/LeaveApplicationForm.tsx
 import React, { useEffect } from 'react';
 import {
     Form,
@@ -55,7 +54,6 @@ const PurchaseHeader: React.FC<HeaderProps> = ({ onSubmit }) => {
                 description: `Purchase updated successfully. Document number ${data.description}`,
                 duration: 3,
             });
-           // onSubmit(data.description);
             navigate(`/procurement/Purchase-Document?DocumentNo=${data.description}`);
         } catch (err: any) {
             api.error({

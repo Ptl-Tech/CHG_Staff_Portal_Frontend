@@ -50,7 +50,6 @@ const TravelRequisitionForm: React.FC = () => {
         setTransportMode(value);
     };
 
-    // Watch cost-related fields for changes
     useEffect(() => {
         const unsubscribe = form.subscribe?.(({ values }) => {
             calculateTotal(values);

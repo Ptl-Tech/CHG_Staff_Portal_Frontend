@@ -85,7 +85,6 @@ const DocumentList: React.FC<DocumentListProps> = ({
     setUploadFile(false);
   };
 
-  // Download file handler
   const handleDownloadDocument = (record: DowloadDocument) => {
     dispatch(
       downloadDocument({
@@ -109,7 +108,6 @@ const DocumentList: React.FC<DocumentListProps> = ({
       });
   };
 
-  // Confirm delete dialog
   const confirm = (record: DocumentData) => {
     modal.confirm({
       title: "Delete Document",
@@ -122,7 +120,6 @@ const DocumentList: React.FC<DocumentListProps> = ({
     });
   };
 
-  // Delete document handler with notifications
   const handleDeleteDocument = (record: DocumentData) => {
     dispatch(
       deleteDocument({
@@ -142,7 +139,6 @@ const DocumentList: React.FC<DocumentListProps> = ({
       });
   };
 
-  // Preview file handler
   const handlePreviewDocument = (record: DowloadDocument) => {
     dispatch(
       downloadDocument({

@@ -31,9 +31,9 @@ const initialState: DeleteLineItemState = {
 };
 
 export const deleteLineItem = createAsyncThunk<
-  Response, // Success return type
-  DeleteLineParams, // Payload type
-  { rejectValue: { message: string } } // Reject payload type
+  Response, 
+  DeleteLineParams, 
+  { rejectValue: { message: string } } 
 >(
   'delete/deleteLineItem',
   async ({ docNo, lineNo, endpoint }, { rejectWithValue }) => {

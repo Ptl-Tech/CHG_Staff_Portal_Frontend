@@ -1,4 +1,3 @@
-// src/features/leave/RequestModal.tsx
 import React, { useEffect } from 'react';
 import {
     Form,
@@ -8,12 +7,13 @@ import {
     Col,
     Select,
     Button,
-    Modal
+    Modal,
+    notification
 } from 'antd';
 import type { StoreRequisition } from '../../../types/storeRequest';
 import { useAppDispatch, useAppSelector } from '../../../hooks/ReduxHooks';
-import { fetchStoreReqDropDowns, selectStoreReqDropDowns } from '../../../features/storeRequisitions/storeRequests';
-import useApp from 'antd/es/app/useApp';
+import { fetchStoreReqDropDowns, fetchStoreRequestLines, selectStoreReqDropDowns, selectSubmitStoreLineRequest, submitStoreLineRequest } from '../../../features/storeRequisitions/storeRequests';
+import { ItemsTypesOptions } from '../constants/RequestOptions';
 
 const { Option } = Select;
 
@@ -24,28 +24,50 @@ interface RequestModalProps {
 
 const RequestModal: React.FC<RequestModalProps> = ({ visible, onClose }) => {
     const [form] = Form.useForm();
-    const dispatch=useAppDispatch();
-  const {issuingStoreSetup, itemCategorySetup, itemsListSetup}= useAppSelector(selectStoreReqDropDowns);
+    const dispatch = useAppDispatch();
+    const documentNo = new URLSearchParams(window.location.search).get('DocumentNo');
+    const [api, contextHolder] = notification.useNotification();
 
+    const { issuingStoreSetup, itemCategorySetup, itemsListSetup } = useAppSelector(selectStoreReqDropDowns);
 
-useEffect(() => {
-    dispatch(fetchStoreReqDropDowns());
-}, [dispatch]);
+    const { status, message, error } = useAppSelector(selectSubmitStoreLineRequest);
 
-    const handleSubmit = (values: any) => {
+    useEffect(() => {
+        dispatch(fetchStoreReqDropDowns());
+    }, [dispatch]);
+
+    const handleSubmit = async (values: any) => {
         const { requestDate, requiredDate, issueDate } = values;
 
         const payload: StoreRequisition = {
             ...values,
-            startDate: requestDate?.format('YYYY-MM-DD'),
-            endDate: requiredDate?.format('YYYY-MM-DD'),
-            returnDate: issueDate?.format('YYYY-MM-DD'),
+           docNo:documentNo,
+           lineNo : 0
         };
 
-        console.log('Form Data:', payload);
-        // dispatch(createStoreRequisition(payload));
-        onClose(); // Optional: Close modal after submit
-    };
+        try {
+            const res = await dispatch(submitStoreLineRequest(payload)).unwrap();
+            if (documentNo) {
+                await dispatch(fetchStoreRequestLines({ documentNo }));
+            }
+
+            api.success({
+                message: 'Success',
+                description: res?.message || 'Request line added successfully',
+                duration: 3,
+            })
+
+        } catch (err: any) {
+            const errorMessage = err?.message || 'Failed to submit request line';
+            console.error('Submission error:', errorMessage);
+
+            api.error({
+                message: 'Submission Failed',
+                description: errorMessage,
+                duration: 5,
+            });
+        }
+    }
 
     return (
         <Modal
@@ -57,6 +79,8 @@ useEffect(() => {
             style={{ top: 20 }}
             width={800}
         >
+                        {contextHolder}
+
             <Form
                 form={form}
                 layout="vertical"
@@ -66,23 +90,23 @@ useEffect(() => {
                 <Row gutter={16}>
                     <Col span={8}>
                         <Form.Item
-                            label="Select Store Item"
-                            name="item"
+                            label="Select Item Type"
+                            name="itemType"
                             rules={[{ required: true, message: 'Please select a store item' }]}
                         >
-                            <Select placeholder="Select a store item">
-                                {itemCategorySetup?.map((item) => (
-                                    <Option key={item.code} value={item.code}>
-                                        {item.description}
-                                    </Option>
+                            <Select placeholder="Select Item Type">
+                                {ItemsTypesOptions.map(opt => (
+                                    <Select.Option key={opt.value} value={opt.value}>
+                                        {opt.label}
+                                    </Select.Option>
                                 ))}
                             </Select>
                         </Form.Item>
                     </Col>
- <Col span={8}>
+                    <Col span={8}>
                         <Form.Item
                             label="Select Store Item"
-                            name="item"
+                            name="itemNo"
                             rules={[{ required: true, message: 'Please select a store item' }]}
                         >
                             <Select placeholder="Select a store item">
@@ -95,14 +119,18 @@ useEffect(() => {
                         </Form.Item>
                     </Col>
                     <Col span={8}>
-                        <Form.Item label="Planned Quantity" name="plannedQuantity">
-                            <Input type="number" min={0} />
-                        </Form.Item>
-                    </Col>
-
-                    <Col span={8}>
-                        <Form.Item label="Budget Cost" name="budgetCost">
-                            <Input type="number" min={0} />
+                        <Form.Item
+                            label="Select Issuing Store"
+                            name="location"
+                            rules={[{ required: true, message: 'Please select a store item' }]}
+                        >
+                            <Select placeholder="Select issuing store">
+                                {issuingStoreSetup?.map((item) => (
+                                    <Option key={item.code} value={item.code}>
+                                        {item.description}
+                                    </Option>
+                                ))}
+                            </Select>
                         </Form.Item>
                     </Col>
 
@@ -112,17 +140,7 @@ useEffect(() => {
                         </Form.Item>
                     </Col>
 
-                    <Col span={8}>
-                        <Form.Item label="Estimated Unit Cost" name="unitCost">
-                            <Input type="number" min={0} />
-                        </Form.Item>
-                    </Col>
 
-                    <Col span={8}>
-                        <Form.Item label="Estimated Total Cost" name="lineAmount">
-                            <Input type="number" min={0} />
-                        </Form.Item>
-                    </Col>
                 </Row>
 
                 <div style={{ textAlign: 'right', marginTop: 16 }}>

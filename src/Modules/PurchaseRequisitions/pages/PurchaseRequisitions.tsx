@@ -145,7 +145,7 @@ const PurchaseRequisitions: React.FC = () => {
                            // tabPosition="left"
                             activeKey={activeKey}
                             onChange={setActiveKey}
-                            style={{ minHeight: '400px', //spsace between tabs//
+                            style={{ minHeight: '400px', 
                                  borderRight: '1px solid #ccc',
                             }}
                         >

@@ -25,6 +25,10 @@ import StoreRequisitions from '../Modules/StoreRequests/StoreRequisitions'
 import StoreRequisitionForm from '../Modules/StoreRequests/StoreRequisitionForm'
 import LeaveStatement from '../Modules/HrModule/LeaveMgt/pages/LeaveStatement'
 import GeneratePayroll from '../Modules/PayRoll/GeneratePayroll'
+import ApprovalsList from '../Modules/ApprovalMgt/pages/ApprovalsList'
+import TrainingRequisition from '../Modules/HrModule/TrainingManagement/pages/TrainingRequisition'
+import DocumentView from '../Modules/HrModule/TrainingManagement/pages/DocumentView'
+import HRDocuments from '../Modules/Documents/HRDocuments'
 
 const MainRoutes = () => (
     <>
@@ -34,7 +38,9 @@ const MainRoutes = () => (
             <Route path="Leave Application/Leave-List" element={<LeaveApplications />} />
             <Route path="Leave Application/Leave-Document" element={<LeaveDocumentView />} />
             <Route path="Leave Application/leave-Statement" element={<LeaveStatement />} />
-
+            <Route path="Training-Management/Training-Requsitions" element={<TrainingRequisition />} />
+            <Route path="Training-Management/Document-View" element={<DocumentView />} />
+      <Route path="HR-documents" element={<HRDocuments />} />
             <Route path="payroll/Payslip" element={<GeneratePayroll />} />
             <Route path="procurement/store-requisition" element={<StoreRequisitions />} />
             <Route path="procurement/Store-Document" element={<StoreRequisitionForm />} />
@@ -52,6 +58,7 @@ const MainRoutes = () => (
             <Route path="finance/New-Staff-Claim" element={<StaffClaimForm />} />
             <Route path="finance/Travel-Advance-Surrender" element={<TravelAdvanceSurrenderForm />} />
             <Route path="finance/Travel-Advance" element={<TravelAdvanceRequisition />} />
+            <Route path="Approval-Management/Pending" element={<ApprovalsList />} />
             <Route path="settings/change-password" element={<ChangePassword />} />
 
         </Route>

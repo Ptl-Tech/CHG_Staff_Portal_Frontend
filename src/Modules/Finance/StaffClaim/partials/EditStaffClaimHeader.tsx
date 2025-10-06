@@ -1,4 +1,3 @@
-// src/features/leave/LeaveApplicationForm.tsx
 import React, { useEffect, useState } from 'react';
 import {
     Form,
@@ -91,10 +90,7 @@ const EditStaffClaimHeader: React.FC<HeaderProps> = ({ documentNumber, paymentDa
     };
 
     const SubmitHeader = async (values: any) => {
-        // handle submission
-        console.log('values on point', values);
         const { claimType } = values;
-        //find the code value of the claim type and we'll use that
         const claimVal = allStaffClaimTypes.find((item: any) => item.description === claimType)?.code;
 
         console.log('value', claimVal);

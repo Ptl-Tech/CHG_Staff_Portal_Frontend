@@ -1,4 +1,3 @@
-// types/dropdown.ts
 export interface DropdownOptions {
   code: string | null;
   description: string | null;

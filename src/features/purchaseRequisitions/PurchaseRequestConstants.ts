@@ -19,7 +19,6 @@ const initialState: ProcurementPlansState = {
     error: null,
 };
 
-// Thunk for fetching the dropdown data
 export const fetchPurchaseDropdownData = createAsyncThunk<
     { procurementPlans: ProcurementPlans[] },
     void,

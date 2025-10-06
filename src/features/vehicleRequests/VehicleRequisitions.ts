@@ -32,9 +32,9 @@ const initialState: VehicleRequestState = {
 
 // Fixing the generic types of createAsyncThunk
 export const fetchVehicleRequestList = createAsyncThunk<
-  VehicleRequest[],                          // Return type
-  void,                                      // Argument to thunk
-  { rejectValue: { message: string } }       // Rejected value type (corrected from rejectWithValue -> rejectValue)
+  VehicleRequest[],                          
+  void,                                     
+  { rejectValue: { message: string } }      
 >(
   'vehicle/fetchList',
   async (_, { rejectWithValue }) => {
@@ -42,7 +42,7 @@ export const fetchVehicleRequestList = createAsyncThunk<
       const { token, bcToken } = getPersistedTokens();
       const { data } = await axios.get(`${API_ENDPOINT}/Logistics/fleet/requests`, {
         headers: {
-          Authorization: `Bearer ${token}`,   // Added space after Bearer
+          Authorization: `Bearer ${token}`,   
           'BC-Authorization': bcToken || '',
         },
       });
@@ -75,7 +75,7 @@ export const submitVehicleRequest = createAsyncThunk<
         'BC-Authorization': bcToken || '',
       },
     });
-    return data; // 👈 returns the full object: {statusCode, description, status}
+    return data; 
   } catch (err: any) {
     message.error(err?.response?.data?.message || 'Vehicle Request submission failed');
     return rejectWithValue({ message: err.message || 'Vehicle Request submission failed' });

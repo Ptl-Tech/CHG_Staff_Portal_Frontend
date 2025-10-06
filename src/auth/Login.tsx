@@ -13,10 +13,9 @@ import {
 import { EyeInvisibleOutlined, EyeOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../hooks/ReduxHooks';
-import {  loginUser, selectAuth } from '../features/auth/authSlice';
+import {  loginUser, resetLogin, selectAuth } from '../features/auth/authSlice';
 import loginImg from '../assets/images/loginImg.jpg';
 import logoLogin from '../assets/images/logoLogin.png';
-import zamzamlg from '../assets/images/zamzamlg.jpg'; // Assuming this is the new logo
 
 type UserData = {
   StaffNo: string;
@@ -26,57 +25,48 @@ type UserData = {
 const Login: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-const {  error, token, message } = useAppSelector(selectAuth);
+const {  error, token, message, status } = useAppSelector(selectAuth);
   const [showPassword, setShowPassword] = useState(false);
   const [api, contextHolder] = notification.useNotification();
 
-  const togglePasswordVisibility = () => {
-    setShowPassword((prev) => !prev);
-  };
+
 
   useEffect(() => {
-    if (token) {
+    dispatch(resetLogin()); 
+  }, [dispatch]);
+
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
+
+  const handleLogin: FormProps['onFinish'] = async (values) => {
+    try {
+      const res = await dispatch(
+        loginUser({
+          staffNo: values.StaffNo,
+          password: values.Password,
+        }) as any
+      ).unwrap();
+
+      // ✅ success notification
       api.success({
         message: 'Success',
-        description: message,
-        style: {
-         // backgroundColor: '#52c41a',
-          borderColor: '#52c41a',
-          color: '#fff',
-          fontWeight: 'semibold'
-        },
+        description: res.message,
+        style: { borderColor: '#52c41a', color: '#fff', fontWeight: 'semibold' },
         duration: 3,
         onClose: () => {
-          navigate('/');
-        }
-      })
-    }
-  }, [token, navigate]);
-
-  useEffect(() => {
-    if ( error) {
+          navigate('/'); // redirect on success
+        },
+      });
+    } catch (err: any) {
       api.error({
         message: 'Error',
-        description: error,
-        style:{
-         // backgroundColor: '#ff4d4f',
-          borderColor: '#ff4d4f',
-          color: '#fff',
-          fontWeight: 'semibold'
-        },
+        description: err.message || 'An unexpected error occurred',
+        style: { borderColor: '#ff4d4f', color: '#fff' },
         duration: 3,
         onClose: () => {
-          dispatch({ type: 'auth/clearError' });
-        }
-      })
+          dispatch({ type: 'auth/clearError' }); // reset error after display
+        },
+      });
     }
-  }, [error]);
-
-  const handleLogin: FormProps['onFinish'] = (values) => {
-
-
-
-    dispatch(loginUser({ staffNo: values.StaffNo, password: values.Password }) as any);
   };
 
 
@@ -128,12 +118,7 @@ const {  error, token, message } = useAppSelector(selectAuth);
 
               </Form.Item>
 
-              <div style={{ padding: '8px 0', display: 'flex', alignItems: 'center' }}>
-                <input type="checkbox" id="remember" style={{ marginRight: 8 }} />
-                <label htmlFor="remember" style={{ color: '#888' }}>
-                  Remember me
-                </label>
-              </div>
+            
 
               <div style={{ margin: '24px 0' }}>
                 <Button
@@ -141,6 +126,7 @@ const {  error, token, message } = useAppSelector(selectAuth);
                   htmlType="submit"
                   type="primary"
                   block
+                  disabled={status === 'pending'}
                   loading={status === 'pending'}
                 >
                   {status === 'pending' ? 'Logging in...' : 'Login'}
@@ -159,10 +145,9 @@ const {  error, token, message } = useAppSelector(selectAuth);
             style={{
               flex: 1,
               maxWidth: "450px",
-              minWidth: "300px", // Ensure it doesn't shrink too much
-              padding: 0, // Remove any padding
-              borderRadius: "8px", // Match the card's border-radius
-              overflow: "hidden", // Ensure the image is contained within the rounded corners
+              minWidth: "300px", 
+              padding: 0, 
+              overflow: "hidden", 
             }}
           >
             <img

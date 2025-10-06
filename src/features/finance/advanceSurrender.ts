@@ -1,4 +1,4 @@
-import type { ImprestDocuments, ImprestSurrenderLineData, PaymentData } from './../../types/PaymentData';
+import type { ImprestDocuments, ImprestSurrenderLineData, PaymentData, SurrenderDTO } from './../../types/PaymentData';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { getPersistedTokens } from '../../utils/token';
@@ -8,7 +8,6 @@ import { message } from 'antd';
 
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 
-// --- State Types ---
 interface OperationState {
   status: 'idle' | 'pending' | 'failed';
   response: StatusRequestResponse | null;
@@ -37,7 +36,6 @@ const initialState: AdvanceSurrenderState = {
   imprestSurrender: { ...initialOperationState },
 };
 
-// --- Error extractor helper ---
 const extractErrorMessage = (err: unknown, defaultMsg: string): string => {
   if (
     typeof err === 'object' &&
@@ -54,7 +52,6 @@ const extractErrorMessage = (err: unknown, defaultMsg: string): string => {
   return defaultMsg;
 };
 
-// --- Thunks ---
 export const fetchAdvanceSurrenderList = createAsyncThunk<
   PaymentData[],
   void,
@@ -105,7 +102,7 @@ export const fetchImprestList = createAsyncThunk<
 
 export const submitImprestSurrender = createAsyncThunk<
   StatusRequestResponse,
-  ImprestDocuments,
+  SurrenderDTO,
   { rejectValue: { message: string } }
 >(
   'advanceSurrender/submitImprestSurrender',
@@ -183,7 +180,6 @@ const advanceSurrenderSlice = createSlice({
         state.fetchStatus = 'failed';
       })
 
-      // Fetch Imprest List
       .addCase(fetchImprestList.pending, (state) => {
         state.fetchStatus = 'pending';
       })
@@ -195,7 +191,6 @@ const advanceSurrenderSlice = createSlice({
         state.fetchStatus = 'failed';
       })
 
-      // Submit Surrender Line
       .addCase(submitSurrenderLine.pending, (state) => {
         state.lineSubmit.status = 'pending';
       })
@@ -208,7 +203,6 @@ const advanceSurrenderSlice = createSlice({
         state.lineSubmit.error = action.payload?.message || null;
       })
 
-      // Submit Imprest Surrender
       .addCase(submitImprestSurrender.pending, (state) => {
         state.imprestSurrender.status = 'pending';
       })
@@ -223,7 +217,6 @@ const advanceSurrenderSlice = createSlice({
   },
 });
 
-// --- Selectors ---
 export const selectAdvanceSurrenderList = (state: RootState) => state.advanceSurrender;
 
 export const selectImprestList = (state: RootState) => ({

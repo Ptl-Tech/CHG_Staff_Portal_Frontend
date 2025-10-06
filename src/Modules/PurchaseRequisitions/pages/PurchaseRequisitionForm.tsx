@@ -1,4 +1,3 @@
-// src/features/leave/LeaveApplicationForm.tsx
 import React from 'react';
 import {
     Form,
@@ -125,11 +124,9 @@ const PurchaseRequisitionForm: React.FC = () => {
                 onSendForApproval={handleSendForApproval}
                 onCancelApproval={handleCancelApproval}
             />
-            {/* items shld be flexed in direction col in the card */}
             <Card style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <PurchaseHeader onSubmit={handleHeaderSubmit} />
                 <Divider />
-                {/* <RequestLines /> */}
             </Card>
         </div>
     );

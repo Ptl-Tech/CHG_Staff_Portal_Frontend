@@ -35,7 +35,7 @@ const { Option } = Select;
 
 interface RequestLinesProps {
     documentNo?: string | null;
-    requestLines?: any[];
+    requestLines?: [];
 
 }
 
@@ -46,20 +46,7 @@ const RequestLines: React.FC<RequestLinesProps> = ({ documentNo, requestLines })
     const [modalVisible, setModalVisible] = React.useState(false);
     const [api, notificationHolder] = notification.useNotification();
     
-    const SubmitHeader = (values: any) => {
-        const { requestDate, requiredDate, issueDate } = values;
-
-        const payload: StoreRequisition = {
-            ...values,
-            startDate: requestDate.format('YYYY-MM-DD'),
-            endDate: requiredDate.format('YYYY-MM-DD'),
-            returnDate: issueDate.format('YYYY-MM-DD'),
-        };
-
-        console.log('Form Data:', payload);
-        // dispatch(createLeaveApplication(payload));
-    };
-
+  
     const confirmDelete = (record: StoreReqLine) => {
         modal.confirm({
             title: 'Delete Line Item',
@@ -109,14 +96,14 @@ const RequestLines: React.FC<RequestLinesProps> = ({ documentNo, requestLines })
             key: 'lineNo',
         },
         {
+            title: 'Issuing store ',
+            dataIndex: 'issuingstore',
+            key: 'issuingstore',
+        },
+        {
             title: 'Item ',
             dataIndex: 'itemDescription',
             key: 'itemDescription',
-        },
-        {
-            title: 'Quantity Requested',
-            dataIndex: 'quantity',
-            key: 'quantity',
         },
         {
             title: 'Quantity in Stock',
@@ -124,9 +111,9 @@ const RequestLines: React.FC<RequestLinesProps> = ({ documentNo, requestLines })
             key: 'quantityinStock',
         },
         {
-            title: 'Quantity Issued',
-            dataIndex: 'quantityIssued',
-            key: 'quantityIssued',
+            title: 'Quantity Requested',
+            dataIndex: 'quantityRequested',
+            key: 'quantityRequested',
         },
         {
       title: 'Actions',

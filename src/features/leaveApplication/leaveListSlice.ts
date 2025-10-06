@@ -20,8 +20,8 @@ const initialState: LeaveListState = {
 };
 
 export const fetchLeaves = createAsyncThunk<
-  LeaveApplication[], // return
-  void,               // args
+  LeaveApplication[], 
+  void,               
   { rejectValue: { message: string } }
 >('leave/fetchLeaves', async (_, { rejectWithValue }) => {
   try {

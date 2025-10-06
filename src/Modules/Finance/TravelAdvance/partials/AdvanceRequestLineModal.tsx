@@ -56,10 +56,6 @@ const AdvanceRequestLineModal: React.FC<RequestLineModalProps> = ({
     }
   }, [initialLine, form]);
 
-
-
-
-  // Handle form submission
   const handleSubmit = async (values: ImprestLinesPayload) => {
     const payload = { ...values, documentNo: docNo, lineNo:initialLine?.lineNo ?? 0 };
 

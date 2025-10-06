@@ -7,7 +7,6 @@ import { changePassword, resetPassword, selectAuth, selectForgetPassword } from 
 import type { AppDispatch } from '../app/store';
 import { useAppDispatch, useAppSelector } from '../hooks/ReduxHooks';
 import type { ChangePasswordState } from '../types/authState';
-import zamzamlg from '../assets/images/zamzamlg.jpg'; // Assuming this is the new logo
 import logoLogin from '../assets/images/logoLogin.png';
 import loginImg from '../assets/images/loginImg.jpg'
 import { useNavigate } from 'react-router-dom';
@@ -48,7 +47,7 @@ const ResetPassword: React.FC = () => {
             .catch((err) => {
                 api.error({
                     message: "Error",
-                    description: err || "An unexpected error occurred",
+                    description: err.message || "An unexpected error occurred",
                     style: {
                         borderColor: "#ff4d4f",
                         color: "#fff",

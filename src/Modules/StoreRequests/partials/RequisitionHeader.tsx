@@ -1,4 +1,3 @@
-// src/features/requisition/RequisitionHeader.tsx
 import React, { useEffect } from 'react';
 import {
   Form,
@@ -11,6 +10,7 @@ import {
   Tooltip,
   Card,
   Select,
+  notification,
 } from 'antd';
 import {
   AppstoreAddOutlined,
@@ -22,37 +22,56 @@ import moment from 'moment';
 import PageHeader from '../../../components/PageHeader';
 import ApprovalTrailModal from '../../../components/ApprovalTrailModal';
 import type { DropdownOptions } from '../../../types/dropdown';
+import { RequestOptions } from '../constants/RequestOptions';
+import { useAppDispatch, useAppSelector } from '../../../hooks/ReduxHooks';
+import { selectSubmitStoreRequest, submitStoreRequest } from '../../../features/storeRequisitions/storeRequests';
 
 
 const { TextArea } = Input;
 
 interface HeaderProps {
   onSubmit: (newDocNo: string) => void;
-  issuingStoreSetup: DropdownOptions[];
 }
 
 const RequisitionHeader: React.FC<HeaderProps> = ({
-  onSubmit,
-  issuingStoreSetup
+  onSubmit
 }) => {
+  const dispatch = useAppDispatch();
   const [form] = Form.useForm();
   const [modalVisible, setModalVisible] = React.useState(false);
+  const { status, error } = useAppSelector(selectSubmitStoreRequest);
 
+  const [api, contextHolder] = notification.useNotification();
 
-
-  const SubmitHeader = (values: any) => {
-    const payload = {
-      ...values,
-      documentDate: values.documentDate
-        ? values.documentDate.format('YYYY-MM-DD')
-        : null,
-      expectedReceiptDate: values.expectedReceiptDate
-        ? values.expectedReceiptDate.format('YYYY-MM-DD')
-        : null,
-    };
-    console.log('Form Data:', payload);
-    onSubmit(payload.documentNo || '');
+const SubmitHeader = async (values: any) => {
+  const payload = {
+    ...values,
+    docNo: '',
+    requestDate: values.requestDate
+      ? values.requestDate.format('YYYY-MM-DD')
+      : null,
   };
+
+
+  try {
+    const res = await dispatch(submitStoreRequest(payload)).unwrap();
+
+    api.success({
+      message: 'Success',
+      description: res.description,
+      onClose: () => {
+        if (res) onSubmit(res.description);
+      },
+    });
+  } catch (err: any) {
+    api.error({
+      message: 'Submission Failed',
+      description: err?.message || 'Something went wrong',
+      duration: 3,
+    });
+  }
+};
+
 
   return (
     <div>
@@ -62,6 +81,7 @@ const RequisitionHeader: React.FC<HeaderProps> = ({
         onFinish={SubmitHeader}
         autoComplete="off"
       >
+        {contextHolder}
         <div
           style={{
             display: 'flex',
@@ -104,23 +124,26 @@ const RequisitionHeader: React.FC<HeaderProps> = ({
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              label="Request Date"
-              name="documentDate"
+              label="Request Type"
+              name="requestType"
               rules={[
-                { required: true, message: 'Please select a request date' },
+                { required: true, message: 'Please select a request type' },
               ]}
             >
-              <DatePicker
-                format="DD/MM/YYYY"
-                style={{ width: '100%' }}
-                suffixIcon={<CalendarOutlined />}
-              />
+              <Select placeholder="Select Requisition Type">
+                {RequestOptions.map(opt => (
+                  <Select.Option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </Select.Option>
+                ))}
+              </Select>
+
             </Form.Item>
           </Col>
           <Col span={12}>
             <Form.Item
               label="Required Date"
-              name="expectedReceiptDate"
+              name="requestDate"
               rules={[
                 { required: true, message: 'Please select a required date' },
               ]}
@@ -132,31 +155,17 @@ const RequisitionHeader: React.FC<HeaderProps> = ({
               />
             </Form.Item>
           </Col>
-          <Col span={12}>
-            <Form.Item
-              label="Issuing Location"
-              name="location"
-              rules={[
-                { required: true, message: 'Please enter issuing location' },
-              ]}
-            >
-              <Select placeholder="Select Issuing Location">
-                {issuingStoreSetup?.map((option) => (
-                  <Select.Option key={option.code} value={option.code}>
-                    {option.description}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
-
-
           <Col span={24}>
-            <Form.Item label="Description" name="reason">
+            <Form.Item label="Description" name="requestDescription">
               <TextArea rows={4} />
             </Form.Item>
           </Col>
         </Row>
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Button type="primary" htmlType="submit">
+            Submit Requisition
+          </Button>
+        </div>
       </Form>
 
       <ApprovalTrailModal

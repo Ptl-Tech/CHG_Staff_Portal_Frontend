@@ -40,7 +40,6 @@ export const fetchUserData = createAsyncThunk<
         },
       });
 
-      // Optionally: validate/transform data shape here if necessary
       return data as UserData;
     } catch (err: any) {
       return rejectWithValue({

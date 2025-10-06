@@ -1,4 +1,3 @@
-// src/features/requisition/StoreRequisitionForm.tsx
 import React, { useEffect } from 'react';
 import {
     Form,
@@ -31,7 +30,6 @@ const StoreRequisitionForm: React.FC = () => {
     const [form] = Form.useForm();
     const [isHeaderPinned, setIsHeaderPinned] = React.useState(true);
     const [api, contextHolder] = notification.useNotification();
-    // Get docNo from query string
     const initialDocNo = new URLSearchParams(window.location.search).get('DocumentNo');
     const [docNo, setDocNo] = React.useState<string | null>(initialDocNo);
 
@@ -48,7 +46,6 @@ useEffect(() => {
 
     useEffect(() => {
         if (docNo) {
-            // Editing existing requisition
             dispatch(fetchStoreRequestDocument({ documentNo: docNo }));
             dispatch(fetchStoreRequestLines({ documentNo: docNo }));
         }
@@ -62,7 +59,7 @@ useEffect(() => {
         dispatch(
             sendForApproval({
                 docNo,
-                endpoint: `/Procurement/send-Store-approval?docNo=${docNo}`,
+                endpoint: `/Procurement/send-store-approval?docNo=${docNo}`,
             })
         )
             .unwrap()
@@ -141,7 +138,7 @@ useEffect(() => {
                             backgroundColor: 'rgba(255,255,255,0.7)',
                             display: 'flex', justifyContent: 'center', alignItems: 'center',
                         }}>
-                            <Spin size="large" tip="Calculating return date... Please wait." />
+                            <Spin size="large" tip="Please wait." />
 
                         </div>
                     )}
@@ -153,19 +150,17 @@ useEffect(() => {
                             flexDirection: 'column',
                         }}
                     >
-                        {/* ✅ Correct logic: if docNo exists, edit; else, create */}
                         {docNo ? (
                             <EditRequisitionHeader requestHeader={requestHeader} />
                         ) : (
                             <RequisitionHeader
                                 onSubmit={(newDocNo) => setDocNo(newDocNo)}
-                                issuingStoreSetup={issuingStoreSetup}
+                                
                             />
                         )}
 
                         <Divider />
 
-                        {/* Only show lines if editing existing request */}
                         {docNo && (
                             <RequestLines requestLines={requestLines} documentNo={docNo} />
                         )}

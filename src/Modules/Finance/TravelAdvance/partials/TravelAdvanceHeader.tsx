@@ -1,4 +1,3 @@
-// src/features/leave/LeaveApplicationForm.tsx
 import { useEffect } from 'react';
 import {
     Form,

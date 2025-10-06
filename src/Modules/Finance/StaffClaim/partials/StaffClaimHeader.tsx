@@ -19,6 +19,7 @@ import {
   submitClaimRequest,
 } from '../../../../features/finance/staffClaim';
 import type { StaffClaimDTO } from '../../../../types/PaymentData';
+import { fetchResponsibilityCenters, selectResponsibilityCenters } from '../../../../features/common/commonSetups';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -37,43 +38,44 @@ const StaffClaimHeader: React.FC<HeaderProps> = ({ onSubmit }) => {
     status,
   } = useAppSelector(selectClaimDropdownData);
   const { status: submitStatus, error } = useAppSelector(selectSubmitClaimRequest);
-
+ const { responsibilityCenters, status: destStatus } = useAppSelector(selectResponsibilityCenters);
   const [claimType, setClaimType] = React.useState<string>('');
   const [api, contextHolder] = notification.useNotification();
   useEffect(() => {
     dispatch(fetchClaimDropdownData());
+            dispatch(fetchResponsibilityCenters());
+    
   }, [dispatch]);
 
-const SubmitHeader = (values: StaffClaimDTO) => {
-  const payLoad = {
-    paymentNo: '',
-    claimType: Number(values.claimType),
-    paymentNarration: values.paymentNarration,
-    imprestSurrenderNo: values.imprestSurrenderNo,
+  const SubmitHeader = (values: StaffClaimDTO) => {
+    const payLoad = {
+      docNo: '',
+      claimDescription: values.paymentNarration,
+      responsibilityCenter: values.responsibilityCenter,
+    };
+
+    dispatch(submitClaimRequest(payLoad))
+      .unwrap()
+      .then((res) => {
+        api.success({
+          message: 'Success',
+          description: `You have successfully submitted advance request. Document No: ${res.description}`,
+          onClose: () => {
+            if (res) onSubmit(res.description);
+          },
+        });
+      })
+      .catch((error: { message?: string }) => {
+        const errorMessage =
+          error?.message || 'Failed to submit advance request';
+        console.error('Failed to submit advance request', errorMessage);
+
+        api.error({
+          message: 'Error',
+          description: errorMessage,
+        });
+      });
   };
-
-  dispatch(submitClaimRequest(payLoad))
-    .unwrap()
-    .then((res) => {
-      api.success({
-        message: 'Success',
-        description: `You have successfully submitted advance request. Document No: ${res.description}`,
-        onClose: () => {
-          if (res) onSubmit(res.description);
-        },
-      });
-    })
-    .catch((error: { message?: string }) => {
-      const errorMessage =
-        error?.message || 'Failed to submit advance request';
-      console.error('Failed to submit advance request', errorMessage);
-
-      api.error({
-        message: 'Error',
-        description: errorMessage,
-      });
-    });
-};
 
 
   return (
@@ -105,7 +107,7 @@ const SubmitHeader = (values: StaffClaimDTO) => {
           </div>
           {contextHolder}
           <Row gutter={16}>
-            <Col span={12}>
+            {/* <Col span={12}>
               <Form.Item
                 label="Claim Type"
                 name="claimType"
@@ -131,9 +133,9 @@ const SubmitHeader = (values: StaffClaimDTO) => {
                   }))}
                 />
               </Form.Item>
-            </Col>
+            </Col> */}
 
-            {claimType === '3' && (
+            {/* {claimType === '3' && (
               <Col span={12}>
                 <Form.Item
                   label="Document Number"
@@ -163,14 +165,29 @@ const SubmitHeader = (values: StaffClaimDTO) => {
                   />
                 </Form.Item>
               </Col>
-            )}
+            )} */}
 
+<Col span={12}>
+              <Form.Item
+                label="Responsibility Center"
+                name="responsibilityCenter"
+                rules={[{ required: true, message: 'Please enter the responsibility center' }]}
+              >
+                <Select placeholder="Select Responsibility Center" style={{ width: '100%' }}>
+                  {responsibilityCenters.map((center) => (
+                    <Option key={center.code} value={center.code}>
+                      {center.description}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
             <Col span={12}>
               <Form.Item label="Description" name="paymentNarration">
                 <TextArea rows={4} />
               </Form.Item>
             </Col>
-
+            
             <Col span={24} style={{ textAlign: 'right' }}>
               <Form.Item>
                 <Button type="primary" htmlType="submit">

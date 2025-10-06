@@ -1,4 +1,3 @@
-// src/features/leave/LeaveApplicationForm.tsx
 import React from 'react';
 import {
   Typography,

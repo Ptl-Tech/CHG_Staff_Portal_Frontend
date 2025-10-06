@@ -1,4 +1,3 @@
-// src/features/leave/LeaveApplicationForm.tsx
 import React, { useEffect, useCallback } from 'react';
 import {
     Form, Input, DatePicker, Row, Col, Select, Button, Card, Typography, Tooltip,
@@ -43,11 +42,7 @@ const LeaveApplicationForm: React.FC = () => {
     const [isHeaderPinned, setIsHeaderPinned] = React.useState(true);
     const [modalVisible, setModalVisible] = React.useState(false);
     const [api, contextHolder] = notification.useNotification();
-
-    // Centralized toast handler
-    const showToast = useCallback((type: 'success' | 'error', content: string) => {
-
-    }, []);
+   
     useEffect(() => {
         if (leaveNo) {
             dispatch(fetchLeaveDocument({ leaveNo }));
@@ -64,26 +59,26 @@ const LeaveApplicationForm: React.FC = () => {
 
     useEffect(() => {
         if (isEditMode && leaveData && relievers.length > 0) {
-            const relieverCode = relievers?.find(
-                r => r.description?.trim().toLowerCase() === leaveData.reliever?.trim().toLowerCase()
-            )?.code || leaveData.reliever;
-            console.log('relieverCode', relieverCode);
+
+            const relieverCode = relievers.find((reliever) => reliever.description === leaveData.reliever)?.code;
+
+
+
             form.setFieldsValue({
                 ...leaveData,
-                endDate: parseDate(leaveData.endDate),
-                returnDate: parseDate(leaveData?.returnDate),
-                startDate: parseDate(leaveData.startDate),
-
-
+                leaveType: leaveData.leaveType,
+                purpose: leaveData.remarks,
+                startDate: leaveData.startDate ? moment(leaveData.startDate, "YYYY-MM-DD") : null,
+                endDate: leaveData.endDate ? moment(leaveData.endDate, "YYYY-MM-DD") : null,
+                returnDate: leaveData.returnDate ? moment(leaveData.returnDate, "YYYY-MM-DD").format("DD/MM/YYYY") : null,
                 days: leaveData.leaveDays,
                 responsibilityCenter: leaveData.responsibilityCenter,
-                reliever: relieverCode,
+                reliever: relieverCode || null,
                 remarks: leaveData.remarks,
             });
-
-
         }
     }, [isEditMode, leaveData, form, relievers]);
+
 
     const getReturnDate = async (values: any) => {
         const { leaveType, startDate, endDate } = values;
@@ -99,15 +94,14 @@ const LeaveApplicationForm: React.FC = () => {
         try {
             const data = await dispatch(fetchReturnDates(payload)).unwrap();
 
-            // Update form fields
             form.setFieldsValue({
-                returnDate: parseDate(data.returnDate),
-                endDate: parseDate(data.endDate),
+                returnDate: data.returnDate ? moment(data.returnDate, "MM/DD/YY").format("DD/MM/YYYY") : null,
+                endDate: data.endDate ? moment(data.endDate, "MM/DD/YY") : null,
                 days: data.leaveDays,
                 leaveNo: data.leaveNo,
             });
 
-            // Persist leaveNo in URL
+
             const params = new URLSearchParams(window.location.search);
             params.set('DocumentNo', data.leaveNo);
             window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
@@ -128,22 +122,27 @@ const LeaveApplicationForm: React.FC = () => {
         const payload: LeaveApplication = {
             ...values,
             leaveNo: docNo,
+            reliever: values.reliever ?? leaveData?.reliever ?? null,
             startDate: values.startDate.format('YYYY-MM-DD'),
             endDate: values.endDate.format('YYYY-MM-DD'),
-            returnDate: values.returnDate.format('YYYY-MM-DD'),
-            leaveDays: values.days,
-            remarks: values.remarks,
+            returnDate: moment(values.returnDate, "DD/MM/YYYY").format("YYYY-MM-DD"),
+            leaveDays: Number(values.days),
+            remarks: values.purpose,
         };
 
         try {
             const res = await dispatch(submitLeaveApplication(payload)).unwrap();
 
-            showToast('success', res.responseDTO?.description || 'Leave application submitted successfully');
+           
             api.success({
                 message: 'Success',
                 description: res.responseDTO?.description,
                 style: { borderColor: "#52c41a", fontWeight: "semibold" },
                 duration: 3,
+                onClose: () => {
+                    dispatch(fetchLeaves());
+                    navigate(`/Leave Application/Leave-Document?DocumentNo=${res?.docNo}`);
+                }
             })
 
 
@@ -163,7 +162,7 @@ const LeaveApplicationForm: React.FC = () => {
         dispatch(
             sendForApproval({
                 docNo: leaveNo,
-                endpoint: `/Leave/send-approval?leaveNo=${leaveNo}`, // use `leaveNo` not `docNo`
+                endpoint: `/Leave/send-approval?leaveNo=${leaveNo}`, 
             })
         )
             .unwrap()
@@ -360,7 +359,7 @@ const LeaveApplicationForm: React.FC = () => {
                                         name="startDate"
                                         rules={[{ required: true, message: 'Please select a start date' }]}
                                     >
-                                        <DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} suffixIcon={<CalendarOutlined />} />
+                                        <DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} suffixIcon={<CalendarOutlined />} disabledDate={(current) => current && current < moment().startOf('day')} />
                                     </Form.Item>
                                 </Col>
 
@@ -370,7 +369,7 @@ const LeaveApplicationForm: React.FC = () => {
                                         name="endDate"
                                         rules={[{ required: true, message: 'Please select an end date' }]}
                                     >
-                                        <DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} suffixIcon={<CalendarOutlined />} />
+                                        <DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} suffixIcon={<CalendarOutlined />} disabledDate={(current) => current && current < moment().startOf('day')} />
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
@@ -379,17 +378,18 @@ const LeaveApplicationForm: React.FC = () => {
                                         name="days"
                                         rules={[{ required: true, message: 'Please input number of days' }]}
                                     >
-                                        <Input type="number" placeholder="Enter number of days" />
+                                        <Input type="number" placeholder="Enter number of days" readOnly />
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
                                     <Form.Item
                                         label="Return Date"
                                         name="returnDate"
-                                        rules={[{ required: true, message: 'Please select a return date' }]}
+                                        rules={[{ required: true, message: 'Return date is required' }]}
                                     >
-                                        <DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} suffixIcon={<CalendarOutlined />} />
+                                        <Input readOnly style={{ width: '100%' }} />
                                     </Form.Item>
+
                                 </Col>
 
                                 {/* Responsibility Center */}
@@ -411,7 +411,7 @@ const LeaveApplicationForm: React.FC = () => {
                                 <Col span={24}>
                                     <Form.Item
                                         label="Purpose of Leave"
-                                        name="remarks"
+                                        name="purpose"
 
                                     >
                                         <TextArea rows={3} placeholder="Reason for applying leave" />

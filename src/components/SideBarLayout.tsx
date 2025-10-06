@@ -62,33 +62,32 @@ export const receptionRoutes = [
                 icon: <ReconciliationOutlined />,
                 label: 'Imprest Requests',
             },
-            //   {
-            //     key: '/finance/Advance-surrender-list',
-            //     icon: <ReconciliationOutlined />,
-            //     label: 'Imprest Surrender',
-            // },
-            // {
-            //     key: '/finance/Staff-Claim-list',
-            //     icon: <DollarOutlined />,
-            //     label: 'Staff Claim',
-            // }
+              {
+                key: '/finance/Advance-surrender-list',
+                icon: <ReconciliationOutlined />,
+                label: 'Imprest Surrender',
+            },
+            {
+                key: '/finance/Staff-Claim-list',
+                icon: <DollarOutlined />,
+                label: 'Staff Claim',
+            }
         ]
     },
 
-          
+    {
+        key: '/Training-Management',
+        icon: <ReconciliationOutlined />,
+        label: 'Training Management',
+        children: [
+            {
+                key: '/Training-Management/Training-Requsitions',
+                icon: <ReconciliationOutlined />,
+                label: 'Training Requisition',
+            },
+        ]},
+           // {
 
-
-    // {
-    //     key: '/training',
-    //     icon: <ReconciliationOutlined />,
-    //     label: 'Training Management',
-    //     children: [
-    //         {
-    //             key: '/training/requisition',
-    //             icon: <ReconciliationOutlined />,
-    //             label: 'Training Requisition',
-    //         },
-    //         {
     //             key: '/training/evaluation',
     //             icon: <ReconciliationOutlined />,
     //             label: 'Training Evaluation',
@@ -113,23 +112,23 @@ export const receptionRoutes = [
     //     ],
     // },
     // 
-    // {
-    //     key: '/procurement',
-    //     icon: <ShoppingCartOutlined />,
-    //     label: 'Procurement Management',
-    //     children: [
-    //         {
-    //             key: '/procurement/store-requisition',
-    //             icon: <ShoppingCartOutlined />,
-    //             label: 'Store Requisition',
-    //         },
-    //         {
-    //             key: '/procurement/purchase-requisition',
-    //             icon: <TagsOutlined />,
-    //             label: 'Purchase Requisition',
-    //         },
-    //     ],
-    // },
+    {
+        key: '/procurement',
+        icon: <ShoppingCartOutlined />,
+        label: 'Procurement Management',
+        children: [
+            {
+                key: '/procurement/store-requisition',
+                icon: <ShoppingCartOutlined />,
+                label: 'Store Requisition',
+            },
+            // {
+            //     key: '/procurement/purchase-requisition',
+            //     icon: <TagsOutlined />,
+            //     label: 'Purchase Requisition',
+            // },
+        ],
+    },
 
     // {
     //     key: '/logistics',
@@ -149,28 +148,19 @@ export const receptionRoutes = [
     //     ]
 
     // },
-    // {
-    //     key: '/approvals',
-    //     icon: <FileDoneOutlined />,
-    //     label: 'Approval Management',
-    //     children: [
-    //         {
-    //             key: '/approvals/pending',
-    //             icon: <FileDoneOutlined />,
-    //             label: 'Pending My Approval',
-    //         },
-    //         {
-    //             key: '/approvals/approved',
-    //             icon: <FileDoneOutlined />,
-    //             label: 'Approved Documents',
-    //         },
-    //         {
-    //             key: '/approvals/rejected',
-    //             icon: <FileDoneOutlined />,
-    //             label: 'Rejected Documents',
-    //         },
-    //     ],
-    // },
+    {
+        key: '/Approval-Management',
+        icon: <FileDoneOutlined />,
+        label: 'Approval Management',
+        children: [
+            {
+                key: '/Approval-Management/Pending',
+                icon: <FileDoneOutlined />,
+                label: 'Document Approval',
+            },
+            
+        ],
+    },
     // {
     //     key: '/supervisor',
     //     icon: <TeamOutlined />,
@@ -193,33 +183,24 @@ export const receptionRoutes = [
     //         },
     //     ],
     // },
-    // {
-    //     key: '/documents',
-    //     icon: <FileTextOutlined />,
-    //     label: 'Documentation Management',
-    //     children: [
-    //         {
-    //             key: '/documents/policies',
-    //             icon: <FileTextOutlined />,
-    //             label: 'Policies',
-    //         },
-    //         {
-    //             key: '/documents/sops',
-    //             icon: <FileTextOutlined />,
-    //             label: 'SOPs',
-    //         },
-    //         {
-    //             key: '/documents/forms',
-    //             icon: <FileTextOutlined />,
-    //             label: 'Forms',
-    //         },
-    //     ],
-    // },
-    // {
-    //     key: '/clearance',
-    //     icon: <FileDoneOutlined />,
-    //     label: 'Clearance',
-    // },
+    {
+        key: '/documents',
+        icon: <FileTextOutlined />,
+        label: 'Documentation Management',
+        children: [
+            {
+                key: '/HR-documents',
+                icon: <FileTextOutlined />,
+                label: 'HR Documents',
+            }
+           
+        ],
+    },
+    {
+        key: '/clearance',
+        icon: <FileDoneOutlined />,
+        label: 'Clearance',
+    },
     {
         key: '/settings',
         icon: <SettingOutlined />,

@@ -1,4 +1,3 @@
-// src/features/leave/LeaveApplicationForm.tsx
 import React from 'react';
 import {
   Form,
@@ -99,7 +98,6 @@ const AdvanceSurrenderRequestLines: React.FC<RequestLinesProps> = ({
     }
   ];
 
-  // Conditionally add actions column if document is not approved
   if (documentStatus !== 'approved') {
     baseColumns.push({
       title: 'Actions',

@@ -9,6 +9,8 @@ import { AdvanceRequisitionsReducer, AdvanceSurrenderReducer, PaymentRequestRedu
 import { DashboardReducer } from '../features/dashboard';
 import { StoreRequisitionReducer } from '../features/storeRequisitions';
 import { PayrollServiceReducer } from '../features/payRoll';
+import { ApprovalMgtReducer } from '../features/approval-management';
+import { TrainingReducer } from '../features/trainingMgt';
 
 export const rootReducer = combineReducers({
     auth: authReducer,
@@ -28,11 +30,14 @@ export const rootReducer = combineReducers({
     advanceSurrender: AdvanceSurrenderReducer,
     staffClaim: StaffClaimReducer,
     paymentsRequest: PaymentRequestReducer,
-    storeRequests:StoreRequisitionReducer,
+    storeRequests: StoreRequisitionReducer,
     dashboard: DashboardReducer,
-    documents:DocumentsReducer,
-    delete:DeleteLineReducer,
-    payroll:PayrollServiceReducer,
+    documents: DocumentsReducer,
+    delete: DeleteLineReducer,
+    payroll: PayrollServiceReducer,
+    approvalMgt: ApprovalMgtReducer,
+    trainingRequisition: TrainingReducer,
+
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

@@ -92,7 +92,7 @@ const TravelAdvanceRequisition: React.FC = () => {
         )
             .unwrap()
             .then((response) => {
-                hide(); // Remove loading message
+                hide(); 
                 api.success({
                     message: 'Success',
                     description: response.message,
@@ -181,7 +181,7 @@ const TravelAdvanceRequisition: React.FC = () => {
                         <Card style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
                             {docNo ? (
                                 <EditAdvanceHeader documentNumber={docNo} paymentData={imprestDocument} />
-                            ) : (
+                            ) : ( 
                                 <TravelAdvanceHeader onSubmit={handleHeaderSubmit} />
                             )}
                             <Divider />

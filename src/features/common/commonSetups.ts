@@ -71,7 +71,7 @@ export const fetchResponsibilityCenters = createAsyncThunk<
 
 export const fetchdocApprovalentries = createAsyncThunk<
   ApprovalEntries[],
-  string, // docNo will be passed as a string
+  string, 
   { rejectValue: { message: string } }
 >(
   'common/fetchdocApprovalentries',
@@ -122,9 +122,9 @@ export const fetchEmployeeList = createAsyncThunk<
 
 // Fetch Donors List
 export const fetchDonorsList = createAsyncThunk<
-  DropdownOptions[], // ✅ Return type
-  void,              // ✅ Argument type
-  { rejectValue: { message: string } } // ✅ Error shape
+  DropdownOptions[],
+  void,             
+  { rejectValue: { message: string } } 
 >(
   'common/fetchDonorsList',
   async (_, { rejectWithValue }) => {
@@ -144,9 +144,9 @@ export const fetchDonorsList = createAsyncThunk<
 );
 
 export const fetchJobsList = createAsyncThunk<
-  JobsOptions[], // ✅ Return type
-  void,              // ✅ Argument type
-  { rejectValue: { message: string } } // ✅ Error shape
+  JobsOptions[], 
+  void,              
+  { rejectValue: { message: string } } 
 >(
   'common/fetchJobsList',
   async (_, { rejectWithValue }) => {

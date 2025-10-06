@@ -4,12 +4,11 @@ import { getPersistedTokens } from "../../utils/token";
 
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 
-//state interfaces
 export interface LoginState {
-  token: string;
-  bcToken: string;
-  staffNo: string;
-  password: string;
+  token: string|null;
+  bcToken: string|null;
+  staffNo: string|null;
+  password: string|null;
   status: "idle" | "pending" | "failed";
   error: string | null;
   message: string | null;
@@ -45,15 +44,13 @@ export interface AuthState {
   changePassword: ChangePasswordState;
 }
 
-/**
- * Initial states
- */
+
 const initialState: AuthState = {
   login: {
-    token: "",
-    bcToken: "",
-    staffNo: "",
-    password: "",
+    token: null,
+    bcToken: null,
+    staffNo: null,
+    password: null,
     status: "idle",
     error: null,
     message: null,
@@ -180,14 +177,21 @@ const authSlice = createSlice({
   reducers: {
     logout: (state) => {
       localStorage.clear();
-      //remove item
       localStorage.removeItem("persist:auth");
-      window.location.href = "/login";
-      //state.login = initialState.login;
+
+      state.login = initialState.login;
     },
+    resetLogin:(s)=>{
+      s.login.token = null;
+      s.login.bcToken = null;
+      s.login.staffNo = null;
+      s.login.password = null;
+      s.login.status = "idle";
+      s.login.error = null;
+      s.login.message = null;
+    }
   },
   extraReducers: (builder) => {
-    // Login
     builder
       .addCase(loginUser.pending, (s) => {
         s.login.status = "pending";
@@ -204,6 +208,8 @@ const authSlice = createSlice({
         s.login.status = "failed";
         s.login.error = payload?.message ?? "Unknown error";
       });
+
+      
 
     // Forget password
     builder
@@ -273,5 +279,5 @@ export const selectResetPassword = (state: any) =>
 export const selectChangePassword = (state: any) =>
   state.auth.changePassword;
 
-export const { logout } = authSlice.actions;
+export const { logout, resetLogin} = authSlice.actions;
 export default authSlice.reducer;

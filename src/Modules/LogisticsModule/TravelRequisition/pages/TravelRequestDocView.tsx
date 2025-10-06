@@ -103,7 +103,6 @@ const TravelRequestDocView: React.FC = () => {
 
         setTransportMode(getTransportModeValue(travelRequestDoc.modeofTransport));
 
-        // ✅ Calculate initial total cost right after setting the values
         calculateTotal({
             hotelCost: travelRequestDoc.hotelCost,
             mealCost: travelRequestDoc.mealCost,

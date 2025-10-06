@@ -37,7 +37,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         position: isPinned ? 'sticky' : 'relative',
         top: isPinned ? 0 : 'unset',
         background: isPinned ? '#fff' : 'transparent',
-        zIndex: 100,
+        zIndex: isPinned ? 1 : 'unset',
         paddingBottom: 12,
         paddingTop: 12,
         paddingInline: 20,

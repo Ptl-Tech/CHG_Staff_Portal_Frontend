@@ -1,4 +1,3 @@
-// features/finance/commonRequest.ts
 import type { ClaimLineData, ImprestSurrenderLineData, PaymentData, PaymentLinesData } from './../../types/PaymentData';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
@@ -9,7 +8,7 @@ const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 
 interface PaymentsRequestState {
   document: PaymentData | null;
-  documentLines: ClaimLineData[]; // keep as array to satisfy table expectations
+  documentLines: ClaimLineData[];
   status: 'idle' | 'pending' | 'failed';
   surrenderLines:ImprestSurrenderLineData[];
   imprestLines:PaymentLinesData[]
@@ -77,7 +76,6 @@ export const fetchPaymentDocumentLines = createAsyncThunk<
           'BC-Authorization': bcToken || '',
         },
       });
-      // Ensure we return an array; defensive fallback
       return data as ClaimLineData[];
     } catch (err: any) {
       return rejectWithValue({
@@ -109,7 +107,6 @@ export const fetchSurrenderLines = createAsyncThunk<
           'BC-Authorization': bcToken || '',
         },
       });
-      // Ensure we return an array; defensive fallback
       return Array.isArray(data) ? data : [];
     } catch (err: any) {
       return rejectWithValue({
@@ -140,7 +137,6 @@ export const fetchImprestLines = createAsyncThunk<
           'BC-Authorization': bcToken || '',
         },
       });
-      // Ensure we return an array; defensive fallback
       return Array.isArray(data) ? data : [];
     } catch (err: any) {
       return rejectWithValue({
@@ -254,7 +250,6 @@ const paymentsRequestSlice = createSlice({
   },
 });
 
-// --- Selectors ---
 export const selectPaymentDocument = (state: RootState) => ({
   document: state.paymentsRequest.document,
   status: state.paymentsRequest.status,
@@ -274,7 +269,6 @@ export const selectSurrenderLines=(state:RootState)=>({
 })
 
 
-// --- Exports ---
 export const {
   clearError,
   clearDocument,

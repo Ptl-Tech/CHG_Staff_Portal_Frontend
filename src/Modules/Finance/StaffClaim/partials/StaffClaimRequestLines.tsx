@@ -1,4 +1,3 @@
-// src/features/leave/LeaveApplicationForm.tsx
 import React from 'react';
 import {
   Form,
@@ -36,7 +35,7 @@ const { Option } = Select;
 interface RequestLinesProps {
   documentNo?: string | null;
   documentStatus?: string | null;
-  requestLines: ClaimLineData[]; // array expected
+  requestLines: ClaimLineData[]; 
    listOfClaimLineTypes: ExpenditureTypes[];
     listOfActivities: JobPlanningLines[];
     listofProjectCodes: DimensionValues[];

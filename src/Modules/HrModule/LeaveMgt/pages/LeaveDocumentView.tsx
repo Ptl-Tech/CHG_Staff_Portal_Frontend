@@ -1,4 +1,3 @@
-// src/features/leave/LeaveApplicationForm.tsx
 import React, { useEffect, useState } from 'react';
 import {
     Form,
@@ -43,7 +42,6 @@ import { fetchLeaves } from '../../../../features/leaveApplication/leaveListSlic
 import DocumentList from '../../../Documents/DocumentList';
 import { fetchDocuments, selectDocumentsList } from '../../../../features/common/documents';
 import type { AlertInfo } from '../../../../types/dropdown';
-import { parseDate } from '../../../../utils/dateParser';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -86,26 +84,30 @@ const LeaveDocumentView: React.FC = () => {
             form.resetFields();
         }
     }, [leaveNo, dispatch, form]);
-    useEffect(() => {
+     useEffect(() => {
         if (isEditMode && leaveData && relievers.length > 0) {
+
+            //normalize the reliever code
+            const relieverCode= relievers.find((reliever) => reliever.description === leaveData.reliever)?.code;
+
+
 
             form.setFieldsValue({
                 ...leaveData,
                 leaveType: leaveData.leaveType,
                 purpose: leaveData.remarks,
-                endDate: parseDate(leaveData.endDate),
-                returnDate: parseDate(leaveData?.returnDate),
-                startDate: parseDate(leaveData.startDate),
+                startDate: leaveData.startDate ? moment(leaveData.startDate, "YYYY-MM-DD") : null,
+                endDate: leaveData.endDate ? moment(leaveData.endDate, "YYYY-MM-DD") : null,
+                returnDate: leaveData.returnDate ? moment(leaveData.returnDate, "YYYY-MM-DD").format("DD/MM/YYYY") : null,
                 days: leaveData.leaveDays,
                 responsibilityCenter: leaveData.responsibilityCenter,
-                reliever: leaveData.reliever || null,
+                reliever: relieverCode || null,
                 remarks: leaveData.remarks,
             });
         }
     }, [isEditMode, leaveData, form, relievers]);
 
 
-    console.log('leaveData', leaveData);
 
     useEffect(() => {
         if (leaveTypes.length === 0 || relievers.length === 0) {
@@ -119,11 +121,9 @@ const LeaveDocumentView: React.FC = () => {
     //         dispatch(fetchDocuments({ tableId: 50215, docNo: leaveNo }));
     //     }
     // }, [leaveNo, dispatch]);
-
     const getReturnDate = async (values: any) => {
         const { leaveType, startDate, endDate } = values;
         if (!leaveType || !startDate) return;
-        console.log('values', values);
         const payload = {
             leaveNo: leaveNo,
             leaveType,
@@ -134,18 +134,18 @@ const LeaveDocumentView: React.FC = () => {
 
         try {
             const data = await dispatch(fetchReturnDates(payload)).unwrap();
-            console.log('data', data);
             form.setFieldsValue({
-                returnDate: parseDate(data.returnDate),
-                endDate: parseDate(data.endDate),
+                returnDate: data.returnDate ? moment(data.returnDate, "MM/DD/YY").format("DD/MM/YYYY") : null,
+                endDate: data.endDate ? moment(data.endDate, "MM/DD/YY") : null,
                 days: data.leaveDays,
                 leaveNo: data.leaveNo,
             });
 
 
+
+
         } catch (err: any) {
             form.setFieldsValue({ returnDate: null, endDate: null, leaveNo: null });
-            console.log('error message', err.message);
             setAlertInfor({ message: err?.message, type: 'error' })
             api.error({
                 message: 'Error',
@@ -172,7 +172,7 @@ const LeaveDocumentView: React.FC = () => {
             reliever: values.reliever ?? leaveData?.reliever ?? null,
             startDate: values.startDate.format('YYYY-MM-DD'),
             endDate: values.endDate.format('YYYY-MM-DD'),
-            returnDate: values.returnDate.format('YYYY-MM-DD'),
+            returnDate: moment(values.returnDate, "DD/MM/YYYY").format("YYYY-MM-DD"),
             leaveDays: Number(values.days),
             remarks: values.purpose,
         };
@@ -188,7 +188,10 @@ const LeaveDocumentView: React.FC = () => {
             });
             form.setFieldsValue({
                 leaveNo: res.leaveNo,
-                returnDate: res.returnDate ? moment(res.returnDate) : null,
+
+                //extract the date     "returnDate": "08/28/25##3",
+
+                returnDate: res.returnDate ? moment(res.returnDate, "MM/DD/YY").format("DD/MM/YYYY") : null,
                 endDate: res.endDate ? moment(res.endDate) : null,
             });
         } catch (err: any) {
@@ -201,6 +204,7 @@ const LeaveDocumentView: React.FC = () => {
 
         }
     };
+
 
     const handleSendForApproval = () => {
         if (!leaveNo) return;
@@ -371,7 +375,7 @@ const LeaveDocumentView: React.FC = () => {
                                     gap: '16px'
                                 }}
                             >
-                                <Typography.Text strong underline>Leave Application Form-{leaveNo}</Typography.Text>
+                                <Typography.Text strong >Leave Application Form-{leaveNo}</Typography.Text>
                                 <div style={{ display: 'flex', gap: '8px' }}>
                                     {/* <Tooltip title="File Attachment">
                                         <Button type="default" onClick={handleFileAttachment} icon={<FileTextOutlined />}>
@@ -416,7 +420,7 @@ const LeaveDocumentView: React.FC = () => {
                                         </Col>
 
                                         <Col span={12}>
-                                            <Form.Item label="Reliever Staff No" name="reliever">
+                                            <Form.Item label="Reliever" name="reliever" rules={[{ required: true, message: 'Please select a reliever' }]}>
                                                 <Select
                                                     placeholder="Select Reliever"
                                                     style={{ width: '100%' }}
@@ -440,7 +444,7 @@ const LeaveDocumentView: React.FC = () => {
                                                 name="startDate"
                                                 rules={[{ required: true, message: 'Please select a start date' }]}
                                             >
-                                                <DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} suffixIcon={<CalendarOutlined />} {...commonProps} />
+                                                <DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} suffixIcon={<CalendarOutlined />} {...commonProps} disabledDate={(current) => current && current < moment().startOf('day')} />
                                             </Form.Item>
                                         </Col>
                                         <Col span={12}>
@@ -449,7 +453,7 @@ const LeaveDocumentView: React.FC = () => {
                                                 name="endDate"
                                                 rules={[{ required: true, message: 'Please select an end date' }]}
                                             >
-                                                <DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} suffixIcon={<CalendarOutlined />} />
+                                                <DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} suffixIcon={<CalendarOutlined />} disabledDate={(current) => current && current < moment().startOf('day')} />
                                             </Form.Item>
                                         </Col>
                                         <Col span={12}>
@@ -458,7 +462,7 @@ const LeaveDocumentView: React.FC = () => {
                                                 name="days"
                                                 rules={[{ required: true, message: 'Please input number of days' }]}
                                             >
-                                                <Input type="number" placeholder="Enter number of days" style={{ width: '100%' }} />
+                                                <Input type="number" readOnly style={{ width: '100%' }} />
                                             </Form.Item>
                                         </Col>
 
@@ -468,33 +472,18 @@ const LeaveDocumentView: React.FC = () => {
                                             <Form.Item
                                                 label="Return Date"
                                                 name="returnDate"
-                                                rules={[{ required: true, message: 'Please select a return date' }]}
+                                                rules={[{ required: true, message: 'Return date is required' }]}
                                             >
-                                                <DatePicker format="DD/MM/YYYY" style={{ width: '100%' }} suffixIcon={<CalendarOutlined />} />
+                                                <Input readOnly style={{ width: '100%' }} />
                                             </Form.Item>
+
                                         </Col>
 
-                                        {/* <Col span={12}>
-                                            <Form.Item
-                                                label="Responsibility Center"
-                                                name="responsibilityCenter"
-                                                rules={[{ required: true, message: 'Please enter the responsibility center' }]}
-                                            >
-                                                <Select placeholder="Select Responsibility Center" style={{ width: '100%' }} {...commonProps}>
-                                                    {responsibilityCenters.map((center) => (
-                                                        <Option key={center.code} value={center.code}>
-                                                            {center.description}
-                                                        </Option>
-                                                    ))}
-                                                </Select>
-                                            </Form.Item>
-                                        </Col> */}
 
                                         <Col span={24}>
                                             <Form.Item
                                                 label="Purpose of Leave"
                                                 name="purpose"
-                                                rules={[{ required: true, message: 'Please state the purpose of leave' }]}
                                             >
                                                 <TextArea rows={3} placeholder="Reason for applying leave" {...commonProps} />
                                             </Form.Item>

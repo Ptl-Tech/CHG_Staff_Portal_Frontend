@@ -1,4 +1,3 @@
-// src/features/requisition/RequisitionHeader.tsx
 import React, { useEffect, useState } from 'react';
 import {
     Form,
@@ -13,20 +12,23 @@ import {
     Drawer,
     notification,
     Tag,
+    Select,
 } from 'antd';
 import {
     AppstoreAddOutlined,
     CalendarOutlined,
+    EditOutlined,
     FileTextOutlined,
 } from '@ant-design/icons';
 import moment from 'moment';
 
 import PageHeader from '../../../components/PageHeader';
 import ApprovalTrailModal from '../../../components/ApprovalTrailModal';
-import type { StoreRequisition } from '../../../features/storeRequisitions/storeRequests';
+import { selectSubmitStoreRequest, submitStoreRequest, type StoreRequisition } from '../../../features/storeRequisitions/storeRequests';
 import DocumentList from '../../Documents/DocumentList';
 import { useAppDispatch, useAppSelector } from '../../../hooks/ReduxHooks';
 import { fetchDocuments, selectDocumentsList } from '../../../features/common/documents';
+import { RequestOptions } from '../constants/RequestOptions';
 
 const { TextArea } = Input;
 
@@ -40,11 +42,12 @@ const EditRequisitionHeader: React.FC<HeaderProps> = ({
     const dispatch = useAppDispatch();
     const docNo = new URLSearchParams(window.location.search).get('DocumentNo');
     const { documents } = useAppSelector(selectDocumentsList);
-
+    const { status, error } = useAppSelector(selectSubmitStoreRequest);
     const [form] = Form.useForm();
-    const [modalVisible, setModalVisible] = React.useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
     const [documentListVisible, setDocumentListVisible] = useState(false);
     const [api, contextHolder] = notification.useNotification();
+    const [isReadOnly, setIsReadOnly] = useState(true);
 
 
     useEffect(() => {
@@ -57,33 +60,46 @@ const EditRequisitionHeader: React.FC<HeaderProps> = ({
                 expectedReceiptDate: requestHeader.expectedReceiptDate
                     ? moment(requestHeader.expectedReceiptDate)
                     : null,
+                requestType: RequestOptions.find(
+                    opt => opt.label === requestHeader.requisitionType
+                )?.value
+
             });
         }
     }, [requestHeader, form]);
 
-    
-        useEffect(() => {
-            if (docNo) {
-                dispatch(fetchDocuments({ tableId: 50126, docNo }));
-            }
-        }, [docNo, dispatch]);
-    
+    useEffect(() => {
+        if (docNo) {
+            dispatch(fetchDocuments({ tableId: 50126, docNo }));
+        }
+    }, [docNo, dispatch]);
 
-    const SubmitHeader = (values: any) => {
+
+    const SubmitHeader = async (values: any) => {
         const payload = {
             ...values,
-            documentDate: values.documentDate
-                ? values.documentDate.format('YYYY-MM-DD')
-                : null,
-            expectedReceiptDate: values.expectedReceiptDate
+            docNo: docNo,
+            requestDate: values.expectedReceiptDate
                 ? values.expectedReceiptDate.format('YYYY-MM-DD')
                 : null,
+            requestDescription: values.reason
         };
         console.log('Form Data:', payload);
+        const res = await dispatch(submitStoreRequest(payload));
+        console.log("res", res);
+        if (res !== null) {
+            api.success({
+                message: 'Success',
+                description: res.payload.description,
+
+            })
+        }
     };
 
     return (
         <div>
+                        {contextHolder}
+
             <Form
                 form={form}
                 layout="vertical"
@@ -133,6 +149,15 @@ const EditRequisitionHeader: React.FC<HeaderProps> = ({
                                 View Approval Trail
                             </Button>
                         </Tooltip>
+                        <Tooltip title={isReadOnly ? 'Edit Form' : 'Disable Editing'}>
+                            <Button
+                                type="primary"
+                                icon={<EditOutlined />}
+                                onClick={() => setIsReadOnly((prev) => !prev)}
+                            >
+                                {isReadOnly ? 'Edit' : 'Disable Edit'}
+                            </Button>
+                        </Tooltip>
                     </div>
                 </div>
 
@@ -169,13 +194,20 @@ const EditRequisitionHeader: React.FC<HeaderProps> = ({
                     </Col>
                     <Col span={12}>
                         <Form.Item
-                            label="Issuing Location"
-                            name="location"
+                            label="Request Type"
+                            name="requestType"
                             rules={[
-                                { required: true, message: 'Please enter issuing location' },
+                                { required: true, message: 'Please select a request type' },
                             ]}
                         >
-                            <Input />
+                            <Select placeholder="Select Requisition Type">
+                                {RequestOptions.map(opt => (
+                                    <Select.Option key={opt.value} value={opt.value}>
+                                        {opt.label}
+                                    </Select.Option>
+                                ))}
+                            </Select>
+
                         </Form.Item>
                     </Col>
 
@@ -196,6 +228,11 @@ const EditRequisitionHeader: React.FC<HeaderProps> = ({
                         </Form.Item>
                     </Col>
                 </Row>
+                <div style={{ justifyContent: 'flex-end', display: isReadOnly ? 'none' : 'flex' }}>
+                    <Button type="primary" htmlType="submit">
+                        Submit Requisition
+                    </Button>
+                </div>
             </Form>
 
             <ApprovalTrailModal visible={modalVisible} onClose={() => setModalVisible(false)} />

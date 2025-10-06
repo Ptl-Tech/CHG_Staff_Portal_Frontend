@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import MainRoutes from './Routes/mainRoutes';
 import Login from './auth/Login';
 import ProtectedRoute from './auth/ProtectedRoute';
@@ -11,6 +11,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="*" element={<Navigate to="/login" replace />} />
 
       <Route element={<ProtectedRoute />}>
         {MainRoutes()}

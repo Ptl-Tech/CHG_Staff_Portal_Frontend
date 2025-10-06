@@ -28,7 +28,6 @@ interface SubmitLeaveApplicationResponse {
   };
 }
 
-// ⬇️ Assume payload IS a LeaveApplication object
 export const submitLeaveApplication = createAsyncThunk<
   SubmitLeaveApplicationResponse,
   LeaveApplication,
@@ -46,7 +45,8 @@ export const submitLeaveApplication = createAsyncThunk<
 
     return data as SubmitLeaveApplicationResponse;
   } catch (err: any) {
-    return rejectWithValue({ message: err.message || 'Failed to complete leave application' });
+    console.log("error", err);
+    return rejectWithValue({ message: err.response.data.error || err.message || 'Failed to complete leave application' });
   }
 });
 

@@ -8,20 +8,20 @@ interface Props {
 
 const CommonReqStats: React.FC<Props> = ({ userData }) => {
   const pendingApprovalData = [
-    // { requestType: 'Advance Requests', count: userData.advanceCount },
+     { requestType: 'Imprest Requests', count: userData.advancePendingApprovalCount },
     // { requestType: 'Advance Surrenders', count: userData.advanceSurrenderCount },
     // { requestType: 'Staff Claims', count: userData.staffClaimCount },
-    { requestType: 'Leave Applications', count: userData.appliedLeaves },
+    { requestType: 'Leave Applications', count: userData.pendingApprovalLeaves },
     // { requestType: 'Training Requests', count: userData.trainingRequests },
     // { requestType: 'Purchase Requests', count: userData.purchaseRequests },
     // { requestType: 'Travel Requests', count: userData.travelRequests }
   ];
 
   const openRequestsData = [
-    // { requestType: 'Advance Requests', count: userData.openAdvanceCount },
+     { requestType: 'Imprest Requests', count: userData.advanceCount },
     // { requestType: 'Advance Surrenders', count: userData.openAdvanceSurrenderCount },
     // { requestType: 'Staff Claims', count: userData.openStaffClaimCount },
-    { requestType: 'Leave Applications', count: userData.openLeaveApplication },
+    { requestType: 'Leave Applications', count: userData.appliedLeaves },
     // { requestType: 'Training Requests', count: userData.opentrainingRequests },
     // { requestType: 'Purchase Requests', count: userData.openPurchaseRequests },
     // { requestType: 'Travel Requests', count: userData.openTravelRequests }

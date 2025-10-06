@@ -1,4 +1,3 @@
-// src/features/leave/LeaveApplicationForm.tsx
 import React, { useEffect } from 'react';
 import {
     Form,
@@ -31,6 +30,7 @@ import StaffClaimRequestLines from '../partials/StaffClaimRequestLines';
 import { selectApprovalApplication, sendForApproval } from '../../../../features/common/sendforApproval';
 import { cancelApproval, selectCancelApprovalApplication } from '../../../../features/common/cancelApprovalReq';
 import StaffClaimHeader from '../partials/StaffClaimHeader';
+import { fetchClaimDocument, fetchClaimLines } from '../../../../features/finance/staffClaim';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -54,8 +54,8 @@ const StaffClaimForm: React.FC = () => {
 
     useEffect(() => {
         if (docNo) {
-            dispatch(fetchPaymentDocument({ documentNo: docNo }));
-            dispatch(fetchPaymentDocumentLines({ documentNo: docNo }));
+            dispatch(fetchClaimDocument({ documentNo: docNo }));
+            dispatch(fetchClaimLines({ documentNo: docNo }));
         }
     }, [dispatch, docNo]);
 
@@ -80,7 +80,7 @@ const StaffClaimForm: React.FC = () => {
         dispatch(
             sendForApproval({
                 docNo: docNo,
-                endpoint: `/Finance/send-approval?docNo=${docNo}`, // use `leaveNo` not `docNo`
+                endpoint: `/Finance/send-claim-approval?docNo=${docNo}`, 
             })
         )
             .unwrap()
@@ -125,7 +125,7 @@ const StaffClaimForm: React.FC = () => {
         dispatch(
             cancelApproval({
                 docNo: docNo,
-                endpoint: `/Finance/cancel-approval?docNo=${docNo}`, // use `leaveNo` not `docNo`
+                endpoint: `/Finance/cancel-claim-approval?docNo=${docNo}`, 
             })
         )
             .unwrap()

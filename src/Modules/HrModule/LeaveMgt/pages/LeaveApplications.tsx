@@ -41,7 +41,7 @@ useEffect(() => {
       key: 'leaveNo',
       fixed: 'left',
       //render as link
-      render: (text: string) => <a style={{ color: 'blue', cursor: 'pointer', textDecoration: 'underline', fontWeight: 'bold' }} onClick={() => navigate(`/Leave Application/Leave-Document?DocumentNo=${text}`)}>{text}</a>,
+      render: (text: string) => <a style={{ cursor: 'pointer', textDecoration: 'underline', fontWeight: 'bold' }} onClick={() => navigate(`/Leave Application/Leave-Document?DocumentNo=${text}`)}>{text}</a>,
     },
     {
       title: 'Leave Type',

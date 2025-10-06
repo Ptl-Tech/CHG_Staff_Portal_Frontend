@@ -136,9 +136,16 @@ export interface ImprestLineData {
 }
 
 export interface ImprestDocuments {
-  code: string;
-  description: string;
+  surrenderDocNo: string;
+  imprestIssueDocNo: string;
 
+}
+
+export interface SurrenderDTO{
+  imprestSurrenderNo: string;
+  imprestSurrenderDate: string;
+  imprestSurrenderNarration: string;
+  imprestSurrenderAmount: number;
 }
 
 export interface StaffClaimDTO {

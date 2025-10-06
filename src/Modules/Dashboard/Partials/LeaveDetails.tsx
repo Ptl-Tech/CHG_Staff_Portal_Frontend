@@ -27,7 +27,7 @@ const LeaveDetails: React.FC<Props> = ({ userData}) => {
         <Col span={8}>
           <Statistic
             title="Annual Leave Balance"
-            value={userData.allLeaveBalance?.toFixed(2)}
+            value={userData.annualLeaveBalances?.toFixed(2)}
             prefix={<LikeOutlined style={{ color: '#1890ff' }} />}
           />
         </Col>
@@ -35,7 +35,7 @@ const LeaveDetails: React.FC<Props> = ({ userData}) => {
         <Col span={8}>
           <Statistic
             title="Pending Approval Leave Requests"
-            value={userData.openLeaveApplication}
+            value={userData.pendingApprovalLeaves}
             prefix={<HourglassOutlined style={{ color: '#faad14' }} />}
           />
         </Col>
@@ -43,7 +43,7 @@ const LeaveDetails: React.FC<Props> = ({ userData}) => {
         <Col span={8}>
           <Statistic
             title="Approved Leave Requests"
-            value={userData.appliedLeaves}
+            value={userData.approvedLeaves}
            // suffix="/ 100"
             prefix={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
           />

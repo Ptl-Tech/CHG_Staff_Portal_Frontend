@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Badge, Button, Card, Skeleton, Space, Table, Tabs, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import PageHeader from '../../components/PageHeader';
 import { useAppDispatch, useAppSelector } from '../../hooks/ReduxHooks';
 import { fetchStoreRequisitions, selectStoreRequisitions } from '../../features/storeRequisitions/storeRequests';
 import moment from 'moment';
@@ -24,17 +23,6 @@ const StoreRequisitions: React.FC = () => {
         dispatch(fetchStoreRequisitions());
     }, [dispatch]);
 
-    const handleSendForApproval = () => {
-        console.log('Send for approval');
-    };
-
-    const handleCancelApproval = () => {
-        console.log('Cancel approval');
-    };
-
-    const handleGeneratePayroll = () => {
-        console.log('Generating payroll from', startDate, 'to', endDate);
-    };
 
     // Grouped Data
     const grouped = {
@@ -56,21 +44,17 @@ const StoreRequisitions: React.FC = () => {
             render: (date: string) => date ? moment(date).format('DD/MM/YYYY') : 'N/A',
         },
         {
-            title: 'Issuing Store',
-            dataIndex: 'location',
-            key: 'location',
+            title: 'Requisition Type',
+            dataIndex: 'requisitionType',
+            key: 'requisitionType',
         },
         {
-            title: 'Issue Date',
+            title: 'Expected Receipt Date',
             dataIndex: 'expectedReceiptDate',
             key: 'expectedReceiptDate',
             render: (date: string) => date ? moment(date).format('DD/MM/YYYY') : 'N/A',
         },
-        {
-            title: 'Amount',
-            dataIndex: 'totalAmount',
-            key: 'totalAmount',
-        },
+        
         {
             title: 'Status',
             dataIndex: 'status',
@@ -138,7 +122,7 @@ const StoreRequisitions: React.FC = () => {
                             activeKey={activeKey}
                             onChange={setActiveKey}
                             style={{
-                                minHeight: '400px', //spsace between tabs//
+                                minHeight: '400px', 
                                 borderRight: '1px solid #ccc',
                             }}
                         >

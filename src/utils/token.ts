@@ -11,7 +11,6 @@ export function getPersistedTokens() {
       bcToken: login.bcToken ?? '',
     };
   } catch (error) {
-    //console.error('Failed to parse persisted tokens:', error);
     return { token: '', bcToken: '' };
   }
 }

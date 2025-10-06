@@ -3,7 +3,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { getPersistedTokens } from '../../utils/token';
 import type { RootState } from '../../app/store';
-import { createSlice } from '@reduxjs/toolkit'; // Needed to define approvalSlice
+import { createSlice } from '@reduxjs/toolkit'; 
 
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 

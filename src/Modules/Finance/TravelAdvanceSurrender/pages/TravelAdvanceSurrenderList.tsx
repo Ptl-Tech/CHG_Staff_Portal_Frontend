@@ -62,8 +62,12 @@ const TravelAdvanceSurrenderList: React.FC = () => {
       message.warning('Please select an imprest document before submitting.');
       return;
     }
+    const payload={
+      surrenderDocNo:'',
+    imprestIssueDocNo: selectedImprest
+    }
 
-    dispatch<any>(submitImprestSurrender({ code: selectedImprest }))
+    dispatch<any>(submitImprestSurrender(payload))
       .unwrap()
       .then((res: any) => {
         api.success({

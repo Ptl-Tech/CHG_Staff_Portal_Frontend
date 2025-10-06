@@ -1,0 +1,1 @@
+export {default as ApprovalMgtReducer}from './approvalmgtFile'

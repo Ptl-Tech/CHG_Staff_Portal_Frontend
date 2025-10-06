@@ -9,7 +9,7 @@ import type { AlertInfo } from '../../../../types/dropdown';
 
 const LeaveStatement: React.FC = () => {
     const dispatch = useAppDispatch();
-    const { leaveTypes } = useAppSelector(selectDropdowns);
+    const { leaveTypes, status: dropdownStatus } = useAppSelector(selectDropdowns);
     const { leaveStatement, status, error } = useAppSelector(selectLeaveStatement);
 
     const [form] = Form.useForm();
@@ -24,9 +24,7 @@ const LeaveStatement: React.FC = () => {
     }, [dispatch, leaveTypes.length]);
     const handleGenerateLeaveStatement = async (values: { leaveType: string }) => {
         try {
-            console.log('Generating leave statement with values:', values);
 
-            // unwrap to get actual payload or throw error
             const response = await dispatch(generateLeaveStatement(values)).unwrap();
 
             if (response) {
@@ -115,6 +113,7 @@ const LeaveStatement: React.FC = () => {
                                     size="large"
                                     placeholder="Select Leave Type"
                                     style={{ width: '100%', color: 'black', fontWeight: 'bold' }}
+                                    loading={dropdownStatus === 'pending'}
                                 >
                                     {leaveTypes.map((type) => (
                                         <Select.Option key={type.code} value={type.code}>

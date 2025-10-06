@@ -26,7 +26,6 @@ const initialState: TravelRequestState = {
   error: null,
 };
 
-// Fetch all travel requests
 export const fetchTravelRequestList = createAsyncThunk<
   TravelRequest[],
   void,
@@ -53,7 +52,6 @@ export const fetchTravelRequestList = createAsyncThunk<
     }
   }
 );
-// Submit new travel request
 export const submitTravelRequest = createAsyncThunk<
   StatusRequestResponse,
   TravelRequest,
@@ -69,7 +67,7 @@ export const submitTravelRequest = createAsyncThunk<
           'BC-Authorization': bcToken || '',
         },
       });
-      return data; // 👈 returns the full object: {statusCode, description, status}
+      return data; 
     } catch (err: any) {
       message.error(err?.response?.data?.message || 'Travel Request submission failed');
       return rejectWithValue({ message: err.message || 'Travel Request submission failed' });

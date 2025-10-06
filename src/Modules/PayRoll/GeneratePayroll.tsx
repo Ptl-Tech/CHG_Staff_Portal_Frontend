@@ -181,7 +181,6 @@ setShowPreview(false);
           </Form>
         </div>
 
-        {/* PDF Preview */}
         {showPreview && pdfUrl && (
           <div style={{ marginTop: 30 }}>
            <div className="d-flex justify-content-between align-items-center my-2">

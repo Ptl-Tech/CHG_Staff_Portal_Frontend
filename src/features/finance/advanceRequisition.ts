@@ -8,7 +8,6 @@ import { message } from 'antd';
 
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 
-// --- Data Models ---
 export interface ImprestData {
   paymentNo: string;
   dateRequested: string;
@@ -45,7 +44,6 @@ export interface ImprestLinesPayload {
   amount: number;
 }
 
-// --- State Types ---
 interface OperationState {
   status: 'idle' | 'pending' | 'failed';
   response: StatusRequestResponse | null;
@@ -91,8 +89,7 @@ const initialState: AdvanceRequestState = {
   error: null,
 };
 
-// --- Thunks ---
-// Fetch list of advance requests
+
 export const fetchAdvanceRequestList = createAsyncThunk<
   ImprestData[],
   void,
@@ -120,7 +117,6 @@ export const fetchAdvanceRequestList = createAsyncThunk<
   }
 );
 
-// Fetch imprest document
 export const fetchImprestDocument = createAsyncThunk<
   ImprestData,
   { documentNo: string },
@@ -149,7 +145,6 @@ export const fetchImprestDocument = createAsyncThunk<
   }
 );
 
-// Fetch imprest lines
 export const fetchImprestLine = createAsyncThunk<
   ImprestLinesData[],
   { documentNo: string },
@@ -180,7 +175,6 @@ export const fetchImprestLine = createAsyncThunk<
   }
 );
 
-// Submit new travel request
 export const submitTravelAdvanceRequest = createAsyncThunk<
   StatusRequestResponse,
   ImprestRequestPayload,
@@ -213,7 +207,6 @@ export const submitTravelAdvanceRequest = createAsyncThunk<
   }
 );
 
-// Submit imprest line
 export const submitImprestLine = createAsyncThunk<
   StatusRequestResponse,
   ImprestLinesPayload,
@@ -250,7 +243,6 @@ export const submitImprestLine = createAsyncThunk<
   }
 );
 
-// --- Slice ---
 const advanceRequestSlice = createSlice({
   name: 'advanceRequests',
   initialState,
@@ -263,7 +255,6 @@ const advanceRequestSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // fetch advance list
       .addCase(fetchAdvanceRequestList.pending, (state) => {
         state.fetchListStatus = 'pending';
       })
@@ -276,7 +267,6 @@ const advanceRequestSlice = createSlice({
         state.error = action.payload?.message || 'Failed to fetch advance list';
       })
 
-      // fetch imprest document
       .addCase(fetchImprestDocument.pending, (state) => {
         state.fetchDocumentStatus = 'pending';
       })
@@ -289,7 +279,6 @@ const advanceRequestSlice = createSlice({
         state.error = action.payload?.message || 'Failed to fetch imprest document';
       })
 
-      // fetch imprest lines
       .addCase(fetchImprestLine.pending, (state) => {
         state.fetchLinesStatus = 'pending';
       })
@@ -318,7 +307,6 @@ const advanceRequestSlice = createSlice({
           action.payload?.message || 'Unknown error during travel submit';
       })
 
-      // imprest line submission
       .addCase(submitImprestLine.pending, (state) => {
         state.lineSubmit.status = 'pending';
         state.lineSubmit.error = null;
@@ -336,7 +324,6 @@ const advanceRequestSlice = createSlice({
   },
 });
 
-// --- Selectors ---
 export const selectAdvanceImprestList = (state: RootState) => ({
   imprestList: state.advanceRequests.imprestList,
   status: state.advanceRequests.fetchListStatus,
@@ -367,6 +354,5 @@ export const selectSubmitImprestLine = (state: RootState) => ({
   error: state.advanceRequests.lineSubmit.error,
 });
 
-// --- Exports ---
 export const { clearError } = advanceRequestSlice.actions;
 export default advanceRequestSlice.reducer;

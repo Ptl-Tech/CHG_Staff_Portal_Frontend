@@ -15,7 +15,8 @@ import {
   TagsOutlined,
   ShoppingCartOutlined,
   MenuFoldOutlined,
-  MenuUnfoldOutlined
+  MenuUnfoldOutlined,
+  DownOutlined
 } from '@ant-design/icons';
 import SignOut from '../auth/SignOut';
 // Dummy route definitions (replace with your real ones)
@@ -23,19 +24,38 @@ import smallLogo from '../assets/images/smallLogo.png';
 import logo from '../assets/images/logo.png';
 
 import { receptionRoutes } from '../components/SideBarLayout';
+import { useIdleTimer } from '../utils/useIdleTimer';
+import { useAppDispatch } from '../hooks/ReduxHooks';
+import { logout } from '../features/auth/authSlice';
+import { useDecodedToken } from '../hooks/useDecodedToken';
 
 
 
 const MasterLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-
-  // MOCK department (replace with real logic: from context, redux, etc.)
-  const department = 'Reception';
-
+const dispatch=useAppDispatch();
+ 
   const [collapsed, setCollapsed] = useState(false);
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const [selectedKey, setSelectedKey] = useState(location.pathname);
+
+  const decodedToken = useDecodedToken();
+  const staffName = decodedToken?.staffName;
+
+  const getInitials = (name: string | undefined) => {
+  if (!name) return "";
+  const parts = name.trim().split(" ");
+  if (parts.length === 1) return parts[0][0].toUpperCase();
+  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+};
+
+const initials = getInitials(staffName);
+
+  useIdleTimer(() => {
+   dispatch(logout());
+    navigate("/login");
+  }, 1000 * 60 * 30); // 30 minutes
 
 
   useEffect(() => {
@@ -53,7 +73,7 @@ const MasterLayout: React.FC = () => {
 const items: MenuProps["items"] = [
   {
     key: "1",
-    label: <SignOut />,  // no need for extra <div>
+    label: <SignOut />, 
   },
 ];
 
@@ -94,7 +114,8 @@ const items: MenuProps["items"] = [
             <Avatar style={{
               borderColor: "#ffffff",
               //  backgroundColor: "#013289"
-            }}>U</Avatar>
+            }}>{initials}</Avatar>
+          <DownOutlined style={{ color: "#ffffff", marginLeft: 8 }}/>
 
           </div>
         </Dropdown>
@@ -104,9 +125,9 @@ const items: MenuProps["items"] = [
       <Layout style={{ marginTop: 64 }}>
         <Sider
           breakpoint="lg"
-        //  width={250}
+          width={250}
           collapsible
-          collapsedWidth={0}
+          collapsedWidth={80}
           collapsed={collapsed}
           onCollapse={(collapsed) => setCollapsed(collapsed)}
 
@@ -116,7 +137,7 @@ const items: MenuProps["items"] = [
             left: 0,
 
             overflowY: "auto",
-            zIndex: collapsed ? 0 : 100,
+            zIndex: collapsed ? 0 : 1,
             //  background: "#001529",
           }}
         >
@@ -144,7 +165,7 @@ const items: MenuProps["items"] = [
         </Sider>
         <Layout
           style={{
-            marginLeft: collapsed ? 80 : 230,
+            marginLeft: collapsed ? 80 : 250,
             transition: "all 0.2s",
             padding: 24,
             background: "#fff",
@@ -154,7 +175,7 @@ const items: MenuProps["items"] = [
             zIndex: 1,
           }}
         >
-          <Content style={{ minHeight: 280 }} >
+          <Content style={{ zIndex: 0 }} >
             <Outlet />
           </Content>
         </Layout>

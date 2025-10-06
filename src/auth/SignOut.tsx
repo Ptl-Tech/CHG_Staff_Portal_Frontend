@@ -11,9 +11,9 @@ const SignOut: React.FC = () => {
   const dispatch = useAppDispatch();
 
   const handleLogout = () => {
-    dispatch(logout()); // clear redux state
-    persistor.purge();  // clear localStorage persist data
-    navigate('/login'); // redirect
+    dispatch(logout()); 
+    persistor.purge();  
+    navigate('/login'); 
   };
 
   return (
@@ -25,6 +25,7 @@ const SignOut: React.FC = () => {
       danger
     >
       Logout
+      
     </Button>
   );
 };

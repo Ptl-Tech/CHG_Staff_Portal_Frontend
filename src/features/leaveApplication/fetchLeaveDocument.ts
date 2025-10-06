@@ -20,10 +20,9 @@ const initialState: LeaveDocumentState = {
   error: null,
 };
 
-// Fix the arg type here
 export const fetchLeaveDocument = createAsyncThunk<
-  LeaveApplication,                // Return type
-  { leaveNo: string },             // Argument type
+  LeaveApplication,                
+  { leaveNo: string },           
   { rejectValue: { message: string } }
 >('leave/fetchLeaveDocument', async ({ leaveNo }, { rejectWithValue }) => {
   try {

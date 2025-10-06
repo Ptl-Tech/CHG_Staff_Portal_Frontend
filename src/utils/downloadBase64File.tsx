@@ -13,7 +13,7 @@ const mimeTypes: Record<string, string> = {
 
 export function getMimeType(fileName: string): string {
   const ext = fileName.split('.').pop()?.toLowerCase() || "";
-  return mimeTypes[ext] || "application/octet-stream";
+  return mimeTypes[ext] || "application/pdf";
 }
 
 export function downloadFileFromBase64(base64: string, filename: string, mimeType: string) {
