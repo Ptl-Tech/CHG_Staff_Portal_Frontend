@@ -1,5 +1,5 @@
 // src/features/leave/RequestModal.tsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
     Form,
     Input,
@@ -15,6 +15,8 @@ import {
     Card
 } from 'antd';
 import moment from 'moment';
+import { useAppDispatch, useAppSelector } from '../../../hooks/ReduxHooks';
+import { fetchUserData, selectFetchDashboardData } from '../../../features/dashboard/dashboardRequest';
 
 const { Option } = Select;
 
@@ -23,8 +25,14 @@ interface Props {
 }
 
 
-const EmployeesonLeave: React.FC <Props> = ({ employeeData}) => {
+const EmployeesonLeave = () => {
     const [form] = Form.useForm();
+    const dispatch=useAppDispatch();
+      const { dashboardDetails, status, error } = useAppSelector(selectFetchDashboardData);
+    const employeeData=dashboardDetails?.employeesOnLeave;
+        useEffect(() => {
+           dispatch(fetchUserData());
+        }, [dispatch]);
 console.log('employeeData', employeeData);
    const columns=[
     {
@@ -74,7 +82,7 @@ console.log('employeeData', employeeData);
           </Typography.Text>
             <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
           
-        <Table bordered size='small' columns={columns}           dataSource={employeeData?.map((emp: any) => ({ ...emp, key: emp.leaveNo }))} 
+        <Table bordered size='small' columns={columns}   loading={status === 'loading'}         dataSource={employeeData?.map((emp: any) => ({ ...emp, key: emp.leaveNo }))} 
        
         />
       </Space>

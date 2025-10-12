@@ -2,11 +2,12 @@ import { useMemo } from "react";
 import { jwtDecode } from "jwt-decode";
 
 export interface MyPayload {
-  staffNo?: string;
+  nameid?: string;
   gender?: string;
   nickname?: string;
   approverID?: string; 
   staffName?:string;
+  HOD?:string
 }
 
 export const useDecodedToken = (): MyPayload | null => {

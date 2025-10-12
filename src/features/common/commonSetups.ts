@@ -9,7 +9,7 @@ const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 
 interface SetupState {
   uomSetup: DropdownOptions[];
-  staffList: DropdownOptions[];
+  staffList: any[];
   donorsList: DropdownOptions[];
   responsibilityCenters:DropdownOptions[];
   jobsList:JobsOptions[];
@@ -254,7 +254,11 @@ const commonSetupSlice = createSlice({
 // Selectors
 export const selectCommonSetupsData = (state: RootState) => state.commonSetup;
 export const selectUomSetup = (state: RootState) => state.commonSetup.uomSetup;
-export const selectStaffList = (state: RootState) => state.commonSetup.staffList;
+export const selectStaffList = (state: RootState) => ({
+  status: state.commonSetup.status,
+  error: state.commonSetup.error,
+  staffList: state.commonSetup.staffList
+});
 export const selectDonorsList = (state: RootState) => state.commonSetup.donorsList;
 export const selectJobsList = (state: RootState) => state.commonSetup.jobsList;
 export const selectResponsibilityCenters = (state: RootState) =>({
