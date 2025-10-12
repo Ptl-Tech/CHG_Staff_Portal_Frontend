@@ -84,22 +84,24 @@ const RequestLineModal: React.FC<RequestLineModalProps> = ({
         }
     };
 const handleSubmit = async (values: any) => {
-    if (!selectedItem) return; 
+    if (!selectedItem) return; // sanity check
 
     const payload = {
         DocumentNo: documentNo || '',
         ProcurementItem: selectedItem.itemNo,
         Quantity: Number(values.quantity),
         UnitOfMeasure: values.uom,
-        UnitPrice: Number(values.unitPrice), 
+        UnitPrice: Number(values.unitPrice), // or String(values.unitPrice) if backend expects string
         Specification: values.specification,
         LineNo: initialValues?.lineNo || 0,
         DateRequired: values.requiredDate?.toISOString(),
     };
 
     try {
+        // Dispatch createPurchaseLine and unwrap the result
         const res = await dispatch(createPurchaseLine(payload)).unwrap();
 
+        // Fetch updated lines after successful creation
         if (documentNo) {
             await dispatch(fetchPurchaseRequestLines({ documentNo }));
         }
@@ -110,6 +112,7 @@ const handleSubmit = async (values: any) => {
             duration: 3,
         });
 
+        // Optionally reset form and selected item
         form.resetFields(['quantity', 'unitPrice', 'specification', 'uom']);
         setSelectedItem(null);
 

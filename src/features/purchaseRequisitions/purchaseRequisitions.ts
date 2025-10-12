@@ -41,6 +41,7 @@ const initialState: PurchaseRequisitionState = {
     submitError: null,
 };
 
+// Fetch all requisitions
 export const fetchPurchaseRequisitions = createAsyncThunk<
     PurchaseHeader[],
     void,
@@ -62,6 +63,7 @@ export const fetchPurchaseRequisitions = createAsyncThunk<
     }
 });
 
+// Fetch single requisition document
 export const fetchPurchaseDocument = createAsyncThunk<
     PurchaseRequisition,
     { documentNo: string },
@@ -91,6 +93,7 @@ export const fetchPurchaseDocument = createAsyncThunk<
     }
 });
 
+// Fetch requisition line items
 export const fetchPurchaseRequestLines = createAsyncThunk<
     PurchaseLineItem[],
     { documentNo: string },

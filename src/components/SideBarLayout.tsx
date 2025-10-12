@@ -122,11 +122,11 @@ export const receptionRoutes = [
                 icon: <ShoppingCartOutlined />,
                 label: 'Store Requisition',
             },
-            // {
-            //     key: '/procurement/purchase-requisition',
-            //     icon: <TagsOutlined />,
-            //     label: 'Purchase Requisition',
-            // },
+            {
+                key: '/procurement/purchase-requisition',
+                icon: <TagsOutlined />,
+                label: 'Purchase Requisition',
+            },
         ],
     },
 
@@ -196,11 +196,11 @@ export const receptionRoutes = [
            
         ],
     },
-    {
-        key: '/clearance',
-        icon: <FileDoneOutlined />,
-        label: 'Clearance',
-    },
+    // {
+    //     key: '/clearance',
+    //     icon: <FileDoneOutlined />,
+    //     label: 'Clearance',
+    // },
     {
         key: '/settings',
         icon: <SettingOutlined />,
