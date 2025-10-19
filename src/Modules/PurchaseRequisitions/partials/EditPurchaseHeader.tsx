@@ -33,7 +33,7 @@ const { Option } = Select;
 
 interface PurchaseHeaderProps {
     documentNo: string | null;
-    purchaseRequisition: PurchaseHeader | null;
+    purchaseRequisition: any | null;
 }
 
 const EditPurchaseHeader: React.FC<PurchaseHeaderProps> = ({ documentNo, purchaseRequisition }) => {
@@ -172,7 +172,7 @@ const SubmitHeader = (values: any) => {
 
                     {/* Form Fields */}
                     <Row gutter={16}>
-                        <Col span={6}>
+                        <Col span={12}>
                             <Form.Item
                                 label="Order Date"
                                 name="requestDate"
@@ -186,7 +186,7 @@ const SubmitHeader = (values: any) => {
                                 />
                             </Form.Item>
                         </Col>
-
+{/* 
                         <Col span={12}>
                             <Form.Item
                                 label="Select Procurement Plan"
@@ -207,8 +207,8 @@ const SubmitHeader = (values: any) => {
                                     ))}
                                 </Select>
                             </Form.Item>
-                        </Col>
- <Col span={6}>
+                        </Col> */}
+ <Col span={12}>
                             <Form.Item
                                 label="Status"
                                 name="status"

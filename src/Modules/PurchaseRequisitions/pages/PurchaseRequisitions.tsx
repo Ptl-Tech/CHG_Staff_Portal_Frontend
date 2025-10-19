@@ -70,11 +70,7 @@ const PurchaseRequisitions: React.FC = () => {
                 ),
         },
 
-        {
-            title: "Procurement Plan",
-            dataIndex: 'procurementPlan',
-            key: 'procurementPlan',
-        },
+        
         {
             title: 'Status',
             dataIndex: 'status',

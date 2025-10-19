@@ -20,13 +20,14 @@ import {
     fetchPurchaseRequestLines,
     selectSubmitPurchaseLine
 } from '../../../features/purchaseRequisitions/purchaseRequisitions';
+import { fetchStoreReqDropDowns, selectStoreReqDropDowns } from '../../../features/storeRequisitions/storeRequests';
 
 const { Option } = Select;
 
 interface RequestLineModalProps {
     visible: boolean;
     onClose: () => void;
-    itemsList?: any[]; // replace with proper type
+    itemsList?: any[];
     initialValues?: PurchaseLineItem;
 }
 
@@ -41,10 +42,14 @@ const RequestLineModal: React.FC<RequestLineModalProps> = ({
 
     const { uomSetup } = useAppSelector(selectCommonSetupsData);
     const { status, message, error } = useAppSelector(selectSubmitPurchaseLine);
-
+    const { issuingStoreSetup } = useAppSelector(selectStoreReqDropDowns);
     const [form] = Form.useForm();
     const [selectedItem, setSelectedItem] = useState<any | null>(null);
     const [api, contextHolder] = notification.useNotification();
+
+ useEffect(() => {
+        dispatch(fetchStoreReqDropDowns());
+    }, [dispatch]);
 
     // Initialize form with initialValues if provided
     useEffect(() => {
@@ -78,30 +83,32 @@ const RequestLineModal: React.FC<RequestLineModalProps> = ({
 
         if (item) {
             form.setFieldsValue({
-                activityBudget: item.activityBudget,
-                activityActualSpent: item.spentBudget,
+                
+                item: item.itemNo,
+                uom: item.unitofMeasure,
+                unitPrice: formatCurrencyUSD(item?.unitPrice),
+                quantity: 0,
+                amount: 0
             });
         }
     };
 const handleSubmit = async (values: any) => {
-    if (!selectedItem) return; // sanity check
+    if (!selectedItem) return; 
 
     const payload = {
         DocumentNo: documentNo || '',
         ProcurementItem: selectedItem.itemNo,
         Quantity: Number(values.quantity),
         UnitOfMeasure: values.uom,
-        UnitPrice: Number(values.unitPrice), // or String(values.unitPrice) if backend expects string
+        UnitPrice: Number(values.unitPrice),
         Specification: values.specification,
         LineNo: initialValues?.lineNo || 0,
         DateRequired: values.requiredDate?.toISOString(),
     };
 
     try {
-        // Dispatch createPurchaseLine and unwrap the result
         const res = await dispatch(createPurchaseLine(payload)).unwrap();
 
-        // Fetch updated lines after successful creation
         if (documentNo) {
             await dispatch(fetchPurchaseRequestLines({ documentNo }));
         }
@@ -112,7 +119,6 @@ const handleSubmit = async (values: any) => {
             duration: 3,
         });
 
-        // Optionally reset form and selected item
         form.resetFields(['quantity', 'unitPrice', 'specification', 'uom']);
         setSelectedItem(null);
 
@@ -171,27 +177,7 @@ const handleSubmit = async (values: any) => {
                         </Form.Item>
                     </Col>
 
-                    {selectedItem && (
-                        <>
-                            <Col span={12}>
-                                <Form.Item label="Activity Budget">
-                                    <Input
-                                        value={formatCurrencyUSD(selectedItem.activityBudget)}
-                                        disabled
-                                    />
-                                </Form.Item>
-                            </Col>
-                            <Col span={12}>
-                                <Form.Item label="Actual Budget Spent">
-                                    <Input
-                                        value={formatCurrencyUSD(selectedItem.activityActualSpent)}
-                                        disabled
-                                    />
-                                </Form.Item>
-                            </Col>
-                        </>
-                    )}
-
+                   
                     <Col span={12}>
                         <Form.Item
                             label="Quantity"
@@ -228,20 +214,22 @@ const handleSubmit = async (values: any) => {
                         </Form.Item>
                     </Col>
 
-                    <Col span={12}>
-                        <Form.Item label="Estimated Total Cost" name="amount">
-                            <Input disabled />
-                        </Form.Item>
-                    </Col>
-
-                    <Col span={24}>
-                        <Form.Item label="Specification" name="specification">
-                            <Input.TextArea
-                                rows={4}
-                                placeholder="Enter any additional specifications or notes"
-                            />
-                        </Form.Item>
-                    </Col>
+                   <Col span={12}>
+                                          <Form.Item
+                                              label="Select Issuing Store"
+                                              name="location"
+                                              rules={[{ required: true, message: 'Please select a store item' }]}
+                                          >
+                                              <Select placeholder="Select issuing store">
+                                                  {issuingStoreSetup?.map((item) => (
+                                                      <Option key={item.code} value={item.code}>
+                                                          {item.description}
+                                                      </Option>
+                                                  ))}
+                                              </Select>
+                                          </Form.Item>
+                                      </Col>
+                
                 </Row>
 
                 <div style={{ textAlign: 'right', marginTop: 16 }}>
