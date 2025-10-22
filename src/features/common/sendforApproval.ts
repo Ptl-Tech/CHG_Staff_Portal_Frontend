@@ -1,9 +1,10 @@
 // features/leave/sendForApproval.ts
-import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { getPersistedTokens } from '../../utils/token';
+
+import { createSlice } from '@reduxjs/toolkit';
 import type { RootState } from '../../app/store';
-import { createSlice } from '@reduxjs/toolkit'; 
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import { getPersistedTokens } from '../../utils/token';
 
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 
