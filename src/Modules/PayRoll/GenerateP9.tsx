@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Button, Form, Row, Col, Typography, DatePicker, notification, Spin, Modal, Input } from 'antd';
 import { useAppDispatch, useAppSelector } from '../../hooks/ReduxHooks';
-import { generatePayslip, selectGeneratedPayslip } from '../../features/payRoll/payrollservice';
+import { generateP9, generatePayslip, selectGeneratedPayslip } from '../../features/payRoll/payrollservice';
 import dayjs from 'dayjs';
 import { jwtDecode } from 'jwt-decode';
 import { CloseOutlined } from '@ant-design/icons';
@@ -14,7 +14,7 @@ interface MyPayload {
 }
 
 
-const GeneratePayroll: React.FC = () => {
+const GenerateP9: React.FC = () => {
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
   const { status } = useAppSelector(selectGeneratedPayslip);
@@ -44,15 +44,14 @@ const GeneratePayroll: React.FC = () => {
 
     const userPassword = useMemo(() => decodedToken?.nickname?.toLowerCase(), [decodedToken]);
 
-  const handleGeneratePayslip = async (values: { month: dayjs.Dayjs; year: dayjs.Dayjs }) => {
+  const handleGenerateP9 = async (values: {  year: dayjs.Dayjs }) => {
     try {
       const payload = {
-        month: values.month.month() + 1,
         year: values.year.year(),
       };
 setShowPreview(false);
 
-      const response = await dispatch(generatePayslip(payload)).unwrap();
+      const response = await dispatch(generateP9(payload)).unwrap();
 
       if (response) {
         const fileUrl = `data:application/pdf;base64,${response.baseImage}`;
@@ -60,7 +59,7 @@ setShowPreview(false);
 
         api.success({
           message: 'Success',
-          description: 'Payslip generated successfully. Please enter your password to view your payslip',
+          description: 'P9 generated successfully. Please enter your password to view your P9',
           style: {
             borderColor: '#52c41a',
             color: '#fff',
@@ -75,7 +74,7 @@ setShowPreview(false);
       setPdfUrl(null);
       api.error({
         message: 'Error',
-        description: err?.message || 'Failed to generate payslip',
+        description: err?.message || 'Failed to generate P9',
         style: {
           borderColor: '#ff4d4f',
           color: '#fff',
@@ -134,13 +133,13 @@ setShowPreview(false);
           {contextHolder}
 
           <Typography.Title level={4} style={{ marginBottom: 20 }}>
-            Generate Payslip
+            Generate P9
           </Typography.Title>
 
           <Form
             layout="vertical"
             form={form}
-            onFinish={handleGeneratePayslip}
+            onFinish={handleGenerateP9}
           >
             <Row gutter={16}>
               <Col xs={24} sm={12} md={6}>
@@ -157,23 +156,10 @@ setShowPreview(false);
                   />
                 </Form.Item>
               </Col>
-              <Col xs={24} sm={12} md={6}>
-                <Form.Item
-                  label="Month"
-                  name="month"
-                  rules={[{ required: true, message: 'Please select month' }]}
-                >
-                  <DatePicker
-                    picker="month"
-                    placeholder="Select Month"
-                    format={(val) => dayjs(val).format('MMM YYYY')}
-                    style={{ width: '100%' }}
-                  />
-                </Form.Item>
-              </Col>
+            
               <Col xs={24} sm={12} md={6} style={{ marginTop: 30 }}>
                 <Button type="primary" htmlType="submit" block>
-                  Generate Payslip
+                  Generate P9
                 </Button>
               </Col>
             </Row>
@@ -183,12 +169,12 @@ setShowPreview(false);
         {showPreview && pdfUrl && (
           <div style={{ marginTop: 30 }}>
            <div className="d-flex justify-content-between align-items-center my-2">
-             <Typography.Title level={5}>Payslip Preview</Typography.Title>
+             <Typography.Title level={5}>Payslip P9</Typography.Title>
              <Button icon={<CloseOutlined/>} onClick={() => setShowPreview(false)} danger/>
            </div>
             <iframe
               src={pdfUrl}
-              title="Payslip Preview"
+              title="P9 Preview"
               style={{
                 width: '100%',
                 height: '600px',
@@ -208,7 +194,7 @@ setShowPreview(false);
         okText="Unlock"
       >
         <Input.Password
-          placeholder="Enter password to view payslip"
+          placeholder="Enter password to view P9"
           value={enteredPassword}
           onChange={(e) => setEnteredPassword(e.target.value)}
         />
@@ -218,4 +204,4 @@ setShowPreview(false);
   );
 };
 
-export default GeneratePayroll;
+export default GenerateP9;

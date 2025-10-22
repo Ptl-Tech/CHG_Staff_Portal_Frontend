@@ -1,3 +1,4 @@
+// src/features/leave/LeaveApplicationForm.tsx
 import React, { useEffect } from 'react';
 import {
     Form,
@@ -9,7 +10,8 @@ import {
     Button,
     Typography,
     Skeleton,
-    notification
+    notification,
+    Switch
 } from 'antd';
 import { CalendarOutlined } from '@ant-design/icons';
 import moment from 'moment';
@@ -43,7 +45,7 @@ const PurchaseHeader: React.FC<HeaderProps> = ({ onSubmit }) => {
         const payload = {
             documentNo: '',
             orderDate: values.requestDate.format('YYYY-MM-DD'),
-            procurementPlan: values.procurementPlan,
+            priceInclusiveVat: values.priceInclusiveVat,
             reasonDescription: values.description || '',
         };
 
@@ -54,6 +56,7 @@ const PurchaseHeader: React.FC<HeaderProps> = ({ onSubmit }) => {
                 description: `Purchase updated successfully. Document number ${data.description}`,
                 duration: 3,
             });
+           // onSubmit(data.description);
             navigate(`/procurement/Purchase-Document?DocumentNo=${data.description}`);
         } catch (err: any) {
             api.error({
@@ -68,9 +71,7 @@ const PurchaseHeader: React.FC<HeaderProps> = ({ onSubmit }) => {
         return <Skeleton active paragraph={{ rows: 4 }} />;
     }
 
-    if (error) {
-        return <Typography.Text type="danger">{error}</Typography.Text>;
-    }
+    
 
     return (
         <div>
@@ -102,32 +103,19 @@ const PurchaseHeader: React.FC<HeaderProps> = ({ onSubmit }) => {
                                 suffixIcon={<CalendarOutlined />}
                             />
                         </Form.Item>
-                    </Col>
-
-                    <Col span={12}>
-                        <Form.Item
-                            label="Select Procurement Plan"
-                            name="procurementPlan"
-                            rules={[{ required: true, message: 'Please select a procurement plan' }]}
-                        >
-                            <Select
-                                placeholder="Select a procurement plan"
-                                allowClear
-                                showSearch
-                                optionFilterProp="children"
-                            >
-                                {procurementPlans.map(plan => (
-                                    <Option key={plan.code} value={plan.code}>
-                                        {plan.description}
-                                    </Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                    </Col>
+                    </Col>                    
 
                     <Col span={12}>
                         <Form.Item label="Description" name="description">
                             <TextArea rows={4} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            label="Price Inclusive of VAT"
+                            name="priceInclusiveVat"
+                        >
+                           <Switch checkedChildren="Yes" unCheckedChildren="No" defaultChecked  />
                         </Form.Item>
                     </Col>
 

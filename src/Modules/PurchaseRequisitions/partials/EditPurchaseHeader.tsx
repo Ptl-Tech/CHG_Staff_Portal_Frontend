@@ -1,3 +1,4 @@
+// src/features/leave/LeaveApplicationForm.tsx
 import React, { useEffect, useState } from 'react';
 import {
     Form,
@@ -60,12 +61,14 @@ const EditPurchaseHeader: React.FC<PurchaseHeaderProps> = ({ documentNo, purchas
         }
     }, [purchaseRequisition, form]);
 
+    // Fetch procurement plans if not loaded
     useEffect(() => {
         if (procurementPlans.length === 0) {
             dispatch(fetchPurchaseDropdownData());
         }
     }, [dispatch, procurementPlans.length]);
 
+    // Fetch documents if documentNo exists
     useEffect(() => {
         if (documentNo) {
             dispatch(fetchDocuments({ tableId: 50126, docNo: documentNo }));
@@ -74,7 +77,7 @@ const EditPurchaseHeader: React.FC<PurchaseHeaderProps> = ({ documentNo, purchas
 
 const SubmitHeader = (values: any) => {
     const payload = {
-       documentNo: docNo, 
+       documentNo: docNo, // pulled from query string at the top
         orderDate: values.requestDate.format('YYYY-MM-DD'),
         procurementPlan: values.procurementPlan,
         reasonDescription: values.description,
@@ -110,8 +113,6 @@ const SubmitHeader = (values: any) => {
 
             {status === 'pending' ? (
                 <Skeleton active paragraph={{ rows: 4 }} />
-            ) : error ? (
-                <Typography.Text type="danger">{error}</Typography.Text>
             ) : (
                 <Form
                     form={form}
@@ -171,7 +172,7 @@ const SubmitHeader = (values: any) => {
 
                     {/* Form Fields */}
                     <Row gutter={16}>
-                        <Col span={6}>
+                        <Col span={12}>
                             <Form.Item
                                 label="Order Date"
                                 name="requestDate"
@@ -185,7 +186,7 @@ const SubmitHeader = (values: any) => {
                                 />
                             </Form.Item>
                         </Col>
-
+{/* 
                         <Col span={12}>
                             <Form.Item
                                 label="Select Procurement Plan"
@@ -206,8 +207,8 @@ const SubmitHeader = (values: any) => {
                                     ))}
                                 </Select>
                             </Form.Item>
-                        </Col>
- <Col span={6}>
+                        </Col> */}
+ <Col span={12}>
                             <Form.Item
                                 label="Status"
                                 name="status"
@@ -235,12 +236,13 @@ const SubmitHeader = (values: any) => {
                 </Form>
             )}
 
+            {/* Drawer for File Attachments */}
             <Drawer
                 title="File Attachment"
                 placement="right"
                 width={800}
                 onClose={handleFileAttachment}
-                open={documentListVisible} 
+                open={documentListVisible} // AntD v5
             >
                 <DocumentList
                     visible={documentListVisible}
@@ -251,6 +253,7 @@ const SubmitHeader = (values: any) => {
                 />
             </Drawer>
 
+            {/* Approval Trail Modal */}
             <ApprovalTrailModal visible={modalVisible} onClose={() => setModalVisible(false)} />
         </div>
     );

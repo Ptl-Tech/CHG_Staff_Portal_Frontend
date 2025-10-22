@@ -29,6 +29,9 @@ import ApprovalsList from '../Modules/ApprovalMgt/pages/ApprovalsList'
 import TrainingRequisition from '../Modules/HrModule/TrainingManagement/pages/TrainingRequisition'
 import DocumentView from '../Modules/HrModule/TrainingManagement/pages/DocumentView'
 import HRDocuments from '../Modules/Documents/HRDocuments'
+import GenerateP9 from '../Modules/PayRoll/GenerateP9'
+import EmployeesonLeave from '../Modules/Dashboard/Partials/EmployeesonLeave'
+import DepartmentalEmployees from '../Modules/Dashboard/Partials/DepartmentalEmployees'
 
 const MainRoutes = () => (
     <>
@@ -40,15 +43,18 @@ const MainRoutes = () => (
             <Route path="Leave Application/leave-Statement" element={<LeaveStatement />} />
             <Route path="Training-Management/Training-Requsitions" element={<TrainingRequisition />} />
             <Route path="Training-Management/Document-View" element={<DocumentView />} />
-      <Route path="HR-documents" element={<HRDocuments />} />
+            <Route path="HR-documents" element={<HRDocuments />} />
             <Route path="payroll/Payslip" element={<GeneratePayroll />} />
+            <Route path="payroll/P9" element={<GenerateP9 />} />
+
             <Route path="procurement/store-requisition" element={<StoreRequisitions />} />
             <Route path="procurement/Store-Document" element={<StoreRequisitionForm />} />
             <Route path="procurement/purchase-requisition" element={<PurchaseRequisitions />} />
             <Route path="procurement/New-Purchase-Requisition" element={<PurchaseRequisitionForm />} />
             <Route path="procurement/Purchase-Document" element={<PurchaseDocumentView />} />
-            <Route path="logistics/Vehicle-Requests" element={<VehicleRequisitions />} />
-            <Route path="logistics/Vehicle-Requisition" element={<VehicleRequestForm />} />
+            
+            <Route path="supervisor/leave" element={<EmployeesonLeave />} />
+            <Route path="supervisor/employees" element={<DepartmentalEmployees />} />
             <Route path="logistics/Travel-Requisition" element={<TravelRequests />} />
             <Route path="logistics/New-Travel-Requisition" element={<TravelRequisitionForm />} />
             <Route path="logistics/Travel-Requisition-Document" element={<TravelRequestDocView />} />

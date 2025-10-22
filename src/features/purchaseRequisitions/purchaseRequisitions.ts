@@ -91,6 +91,7 @@ export const fetchPurchaseDocument = createAsyncThunk<
     }
 });
 
+// Fetch requisition line items
 export const fetchPurchaseRequestLines = createAsyncThunk<
     PurchaseLineItem[],
     { documentNo: string },
@@ -110,7 +111,6 @@ export const fetchPurchaseRequestLines = createAsyncThunk<
     }
 });
 
-// Submit purchase header
 export const submitPurchaseHeader = createAsyncThunk<
     { message: string },
     PurchaseHeader,

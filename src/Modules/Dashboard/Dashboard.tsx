@@ -32,10 +32,7 @@ const Dashboard: React.FC = () => {
                  <Col span={24}>
                     <CommonReqStats userData={dashboardDetails} />
                 </Col>
-                <Col span={24}>
-                   <EmployeesonLeave employeeData={dashboardDetails?.employeesOnLeave} />
-
-                </Col>
+                
                
             </Row>
            ))}

@@ -7,7 +7,7 @@ import {
 } from '../../../features/purchaseRequisitions/purchaseRequisitions';
 import { useAppDispatch, useAppSelector } from '../../../hooks/ReduxHooks';
 import moment from 'moment';
-import { EyeOutlined } from '@ant-design/icons';
+import { EyeOutlined, PlusOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -30,7 +30,7 @@ const PurchaseRequisitions: React.FC = () => {
         released: purchaseRequests.filter((req) => req.status?.toLowerCase() === 'released'),
     };
 
-    const columns = [
+    const columns:any = [
         {
             title: 'Index',
             dataIndex: 'index',
@@ -40,10 +40,13 @@ const PurchaseRequisitions: React.FC = () => {
             fixed: 'left',
         },
         {
-            title: 'Requisition No.',
+            title: 'Requisition No',
             dataIndex: 'documentNo',
             key: 'documentNo',
-            render: (text: string) => <a style={{ color: 'blue', cursor: 'pointer', textDecoration: 'underline', fontWeight: 'bold' }} onClick={() => navigate(`/procurement/Purchase-Document?DocumentNo=${text}`)}>{text}</a>,
+            render: (text: string) => <a style={{ cursor: 'pointer',fontWeight: 'bold' }} onClick={() => navigate(`/procurement/Purchase-Document?DocumentNo=${text}`)}>{text}</a>,
+            sorter: (a: any, b: any) => a.documentNo.localeCompare(b.documentNo),
+            sortDirections: ['ascend', 'descend'],
+            ellipsis: true,
         },
         {
             title: 'Request Date',
@@ -67,11 +70,7 @@ const PurchaseRequisitions: React.FC = () => {
                 ),
         },
 
-        {
-            title: "Procurement Plan",
-            dataIndex: 'procurementPlan',
-            key: 'procurementPlan',
-        },
+        
         {
             title: 'Status',
             dataIndex: 'status',
@@ -132,35 +131,37 @@ const PurchaseRequisitions: React.FC = () => {
         <>
             <Card title="Purchase Requisition" style={{ margin: '20px' }}
                 extra={
-                    <Button type="primary" onClick={() => navigate('/procurement/New-Purchase-Requisition')}>
+                    <Button type="primary" onClick={() => navigate('/procurement/New-Purchase-Requisition')}
+                     icon={<PlusOutlined />}
+                    >
                         New Purchase Request</Button>}>
 
-                {status === 'pending' ? (
-                    <Skeleton active paragraph={{ rows: 4 }} />
-                ) : error ? (
-                    <Text type="danger">Error: {error}</Text>
-                ) : (
-                    <>
-                        <Tabs
+                  <Tabs
                            // tabPosition="left"
                             activeKey={activeKey}
                             onChange={setActiveKey}
-                            style={{ minHeight: '400px', 
+                            style={{ minHeight: '400px', //spsace between tabs//
                                  borderRight: '1px solid #ccc',
                             }}
                         >
                             {tabItems.map((tab) => (
                                 <TabPane tab={tab.label} key={tab.key}>
                                     <Table
+                                    loading={status === 'pending'}
                                         columns={columns}
-                                        dataSource={tab.content.map((item) => ({ ...item, key: item.requestNo }))}
-                                        pagination={{ pageSize: 75 }}
+                                        dataSource={tab.content.map((item) => ({ ...item, key: item.documentNo }))}
+                                 pagination={{
+                                    defaultPageSize: 45,
+                                    showSizeChanger: true,
+                                    pageSizeOptions: ['25', '50', '75', '100'],
+                                    showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+                                }}
+                                                                scroll={{ x: 'max-content' }}
+
                                     />
                                 </TabPane>
                             ))}
                         </Tabs>
-                    </>
-                )}
             </Card>
         </>
     );

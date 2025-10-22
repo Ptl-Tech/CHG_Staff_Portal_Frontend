@@ -35,7 +35,8 @@ const MasterLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
 const dispatch=useAppDispatch();
- 
+ const routes = receptionRoutes(); // Call it like a function
+
   const [collapsed, setCollapsed] = useState(false);
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const [selectedKey, setSelectedKey] = useState(location.pathname);
@@ -149,7 +150,7 @@ const items: MenuProps["items"] = [
             openKeys={openKeys}
             onOpenChange={onOpenChange}
             onClick={({ key }) => navigate(key)}
-            items={receptionRoutes.map((route) => ({
+            items={routes.map((route) => ({
               key: route.key,
               label: route.label,
               icon: route.icon,

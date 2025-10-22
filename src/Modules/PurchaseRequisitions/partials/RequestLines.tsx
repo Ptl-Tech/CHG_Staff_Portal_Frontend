@@ -24,6 +24,7 @@ import RequestLineModal from './RequestLineModal';
 import { useAppDispatch } from '../../../hooks/ReduxHooks';
 import { deleteLineItem } from '../../../features/common/deleteLineItem';
 import { fetchPurchaseRequestLines } from '../../../features/purchaseRequisitions/purchaseRequisitions';
+import moment from 'moment';
 
 const { Option } = Select;
 
@@ -90,12 +91,13 @@ const RequestLines: React.FC<RequestLinesProps> = ({ requestLines = [], purchase
     };
 
     const columns = [
-        { title: 'Line No', dataIndex: 'lineNo', key: 'lineNo' },
-        { title: 'Item', dataIndex: 'procurementItem', key: 'procurementItem' },
-        { title: 'Procurement Plan Description', dataIndex: 'procurementItemDescription', key: 'procurementItemDescription' },
+
+        { title: 'Item No', dataIndex: 'procurementItem', key: 'procurementItem' },
+        { title: 'Type', dataIndex: 'procurementItemDescription', key: 'procurementItemDescription' },
+        { title: 'Item Description', dataIndex: 'specification', key: 'specification' },
         { title: 'Quantity', dataIndex: 'quantity', key: 'quantity' },
         {
-            title: 'Estimated Cost (Line Amount)',
+            title: 'Estimated Cost',
             dataIndex: 'amount',
             key: 'amount',
             render: (amount: number) => (
@@ -104,6 +106,9 @@ const RequestLines: React.FC<RequestLinesProps> = ({ requestLines = [], purchase
                 </span>
             ),
         },
+        { title: 'Location', dataIndex: 'location', key: 'location' },
+        { title: 'Order Date', dataIndex: 'orderDate', key: 'orderDate' ,render: (date: string) => date ? moment(date).format('DD/MM/YYYY') : 'N/A'},
+         { title: 'Date Required', dataIndex: 'dateRequired', key: 'dateRequired', render: (date: string) => date ? moment(date).format('DD/MM/YYYY') : 'N/A'},
         {
             title: 'Actions',
             key: 'actions',
@@ -142,12 +147,12 @@ const RequestLines: React.FC<RequestLinesProps> = ({ requestLines = [], purchase
                 </Tooltip>
             </div>
 
-      
+
 
             <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
                 <Table columns={columns} dataSource={requestLines} pagination={false} rowKey="lineNo" />
             </Space>
-      {/* Total Amount Display */}
+            {/* Total Amount Display */}
             <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -157,7 +162,7 @@ const RequestLines: React.FC<RequestLinesProps> = ({ requestLines = [], purchase
                 borderRadius: '50px',
                 marginBottom: 16,
                 fontWeight: 600,
-                marginTop:14
+                marginTop: 14
             }}>
                 <span>Total Amount</span>
                 <span style={{ color: 'green' }}>{formatCurrencyUSD(totalAmount)}</span>

@@ -1,3 +1,4 @@
+// src/features/leave/LeaveApplicationForm.tsx
 import React, { useEffect, useState } from 'react';
 import {
     Form,
@@ -137,9 +138,7 @@ const PurchaseDocumentView: React.FC = () => {
 
             {status === 'pending' ? (
                 <Skeleton paragraph={{ rows: 4 }} />
-            ) : error ? (
-                <Typography.Text type="danger">{error}</Typography.Text>
-            ) : (
+            )  : (
                <>
                {contextHolder}
              <div style={{ position: 'relative' }}>
