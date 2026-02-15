@@ -1,59 +1,49 @@
-import React, { useEffect, useCallback } from "react";
-import {
-  Form,
-  Input,
-  DatePicker,
-  Row,
-  Col,
-  Select,
-  Button,
-  Card,
-  Typography,
-  Tooltip,
-  Skeleton,
-  Spin,
-  message,
-  Alert,
-  notification,
-} from "antd";
 import {
   AppstoreAddOutlined,
   CalendarOutlined,
   FileTextOutlined,
 } from "@ant-design/icons";
+import {
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Form,
+  Input,
+  Row,
+  Select,
+  Skeleton,
+  Spin,
+  Tooltip,
+  Typography,
+  notification,
+} from "antd";
+import moment from "moment";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import ApprovalTrailModal from "../../../../components/ApprovalTrailModal";
 import PageHeader from "../../../../components/PageHeader";
-import type { LeaveApplication } from "../../../../types/leave";
-import { useAppDispatch, useAppSelector } from "../../../../hooks/ReduxHooks";
-import {
-  fetchLeaveDropdownData,
-  selectDropdowns,
-} from "../../../../features/leaveApplication/leaveConstantsSlice";
-import {
-  fetchReturnDates,
-  selectReturnDates,
-} from "../../../../features/leaveApplication/fetchLeaveReturnDates";
-import moment, { duration } from "moment";
-import {
-  selectLeaveApplication,
-  submitLeaveApplication,
-} from "../../../../features/leaveApplication/leaveApplicationSlice";
-import type { AlertInfo } from "../../../../types/dropdown";
-import { parseDate } from "../../../../utils/dateParser";
-import {
-  cancelApproval,
-  selectCancelApprovalApplication,
-} from "../../../../features/common/cancelApprovalReq";
-import { fetchLeaves } from "../../../../features/leaveApplication/leaveListSlice";
-import {
-  selectApprovalApplication,
-  sendForApproval,
-} from "../../../../features/common/sendforApproval";
+import ApprovalTrailModal from "../../../../components/ApprovalTrailModal";
+import { selectCancelApprovalApplication } from "../../../../features/common/cancelApprovalReq";
+import { selectApprovalApplication } from "../../../../features/common/sendforApproval";
 import {
   fetchLeaveDocument,
   selectLeaveDocument,
 } from "../../../../features/leaveApplication/fetchLeaveDocument";
+import {
+  fetchReturnDates,
+  selectReturnDates,
+} from "../../../../features/leaveApplication/fetchLeaveReturnDates";
+import {
+  selectLeaveApplication,
+  submitLeaveApplication,
+} from "../../../../features/leaveApplication/leaveApplicationSlice";
+import {
+  fetchLeaveDropdownData,
+  selectDropdowns,
+} from "../../../../features/leaveApplication/leaveConstantsSlice";
+import { fetchLeaves } from "../../../../features/leaveApplication/leaveListSlice";
+import { useAppDispatch, useAppSelector } from "../../../../hooks/ReduxHooks";
+import type { LeaveApplication } from "../../../../types/leave";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -68,21 +58,16 @@ const LeaveApplicationForm: React.FC = () => {
     useAppSelector(selectDropdowns);
   const { status: returnStatus } = useAppSelector(selectReturnDates);
   const { status: resStatus } = useAppSelector(selectLeaveApplication);
-  const { message: approvalRes, status: approvalStatus } = useAppSelector(
-    selectApprovalApplication
+  const { status: approvalStatus } = useAppSelector(selectApprovalApplication);
+  const { status: cancelApprovalStatus } = useAppSelector(
+    selectCancelApprovalApplication,
   );
-  const { message: cancelApprovalReq, status: cancelApprovalStatus } =
-    useAppSelector(selectCancelApprovalApplication);
-  const {
-    leave: leaveData,
-    status: leaveStatus,
-    error: leaveError,
-  } = useAppSelector(selectLeaveDocument);
-  const [alertInfor, setAlertInfor] = React.useState<AlertInfo>(null);
+  const { leave: leaveData, status: leaveStatus } =
+    useAppSelector(selectLeaveDocument);
   const [form] = Form.useForm();
-  const [isHeaderPinned, setIsHeaderPinned] = React.useState(true);
-  const [modalVisible, setModalVisible] = React.useState(false);
   const [api, contextHolder] = notification.useNotification();
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const [isHeaderPinned, setIsHeaderPinned] = React.useState(true);
 
   useEffect(() => {
     if (leaveNo) {
@@ -109,7 +94,7 @@ const LeaveApplicationForm: React.FC = () => {
   useEffect(() => {
     if (isEditMode && leaveData && relievers.length > 0) {
       const relieverCode = relievers.find(
-        (reliever) => reliever.description === leaveData.reliever
+        (reliever) => reliever.description === leaveData.reliever,
       )?.code;
 
       form.setFieldsValue({
@@ -138,10 +123,10 @@ const LeaveApplicationForm: React.FC = () => {
     if (!leaveType || !startDate || !endDate) return;
 
     const payload = {
-      leaveNo: form.getFieldValue("leaveNo") || "",
       leaveType,
-      startDate: startDate.format("YYYY-MM-DD"),
       endDate: endDate.format("YYYY-MM-DD"),
+      startDate: startDate.format("YYYY-MM-DD"),
+      leaveNo: form.getFieldValue("leaveNo") || "",
     };
 
     try {
@@ -161,15 +146,15 @@ const LeaveApplicationForm: React.FC = () => {
       window.history.replaceState(
         {},
         "",
-        `${window.location.pathname}?${params.toString()}`
+        `${window.location.pathname}?${params.toString()}`,
       );
     } catch (err: any) {
       form.setFieldsValue({ returnDate: null, endDate: null, leaveNo: null });
       api.error({
+        duration: 3,
         message: "Error",
         description: err?.message || "Error fetching return date",
         style: { borderColor: "#ff4d4f", fontWeight: "semibold" },
-        duration: 3,
       });
     }
   };
@@ -191,14 +176,14 @@ const LeaveApplicationForm: React.FC = () => {
       const res = await dispatch(submitLeaveApplication(payload)).unwrap();
 
       api.success({
+        duration: 3,
         message: "Success",
         description: res.responseDTO?.description,
         style: { borderColor: "#52c41a", fontWeight: "semibold" },
-        duration: 3,
         onClose: () => {
           dispatch(fetchLeaves());
           navigate(
-            `/Leave Application/Leave-Document?DocumentNo=${res?.docNo}`
+            `/Leave Application/Leave-Document?DocumentNo=${res?.docNo}`,
           );
         },
       });
@@ -212,106 +197,12 @@ const LeaveApplicationForm: React.FC = () => {
     }
   };
 
-  const handleSendForApproval = () => {
-    if (!leaveNo) return;
-
-    dispatch(
-      sendForApproval({
-        docNo: leaveNo,
-        endpoint: `/Leave/send-approval?leaveNo=${leaveNo}`,
-      })
-    )
-      .unwrap()
-      .then((response) => {
-        api.success({
-          message: "Success",
-          description: response.message,
-          style: {
-            // backgroundColor: '#52c41a',
-            borderColor: "#52c41a",
-            color: "#fff",
-            fontWeight: "semibold",
-          },
-          duration: 3,
-          onClose: () => {
-            dispatch(fetchLeaves());
-            navigate("/Leave Application/Leave-List");
-          },
-        });
-      })
-      .catch((error) => {
-        api.error({
-          message: "Error",
-          description: error.message || "Failed to send for approval",
-          style: {
-            // backgroundColor: '#ff4d4f',
-            borderColor: "#ff4d4f",
-            color: "#fff",
-            fontWeight: "semibold",
-          },
-          duration: 3,
-          onClose: () => {
-            dispatch({ type: "RESET" });
-          },
-        });
-      });
-  };
-
-  const handleCancelApproval = () => {
-    if (!leaveNo) return;
-
-    dispatch(
-      cancelApproval({
-        docNo: leaveNo,
-        endpoint: `/Leave/cancel-approval?leaveNo=${leaveNo}`, // use `leaveNo` not `docNo`
-      })
-    )
-      .unwrap()
-      .then((response) => {
-        api.success({
-          message: "Success",
-          description: response.message,
-          style: {
-            // backgroundColor: '#52c41a',
-            borderColor: "#52c41a",
-            color: "#fff",
-            fontWeight: "semibold",
-          },
-          duration: 3,
-          onClose: () => {
-            dispatch(fetchLeaves());
-
-            navigate("/Leave Application/Leave-List");
-          },
-        });
-      })
-      .catch((error) => {
-        api.error({
-          message: "Error",
-          description: error.message || "Failed to cancel approval",
-          style: {
-            // backgroundColor: '#ff4d4f',
-            borderColor: "#ff4d4f",
-            color: "#fff",
-            fontWeight: "semibold",
-          },
-          duration: 3,
-          onClose: () => {
-            dispatch({ type: "RESET" });
-          },
-        });
-      });
-  };
-
   return (
     <div>
       <PageHeader
         title=""
         isPinned={isHeaderPinned}
         onTogglePin={() => setIsHeaderPinned(!isHeaderPinned)}
-        showActions={true}
-        onSendForApproval={handleSendForApproval}
-        onCancelApproval={handleCancelApproval}
       />
       <Card>
         {status === "pending" ? (
@@ -489,21 +380,6 @@ const LeaveApplicationForm: React.FC = () => {
                     <Input readOnly style={{ width: "100%" }} />
                   </Form.Item>
                 </Col>
-
-                {/* Responsibility Center */}
-                {/* <Col span={12}>
-                                    <Form.Item
-                                        label="Responsibility Center"
-                                        name="responsibilityCenter"
-                                        rules={[{ required: true, message: 'Please enter the responsibility center' }]}
-                                    >
-                                        <Select placeholder="Select Responsibility Center">
-                                            {responsibilityCenters.map((center) => (
-                                                <Option key={center.code} value={center.code}>{center.description}</Option>
-                                            ))}
-                                        </Select>
-                                    </Form.Item>
-                                </Col> */}
 
                 {/* Remarks */}
                 <Col span={24}>

@@ -1,20 +1,19 @@
-import React from 'react';
-import { Col, Row, Statistic, Typography, Card } from 'antd';
+import React from "react";
+import { Col, Row, Statistic, Typography, Card } from "antd";
 import {
   LikeOutlined,
   HourglassOutlined,
-  CheckCircleOutlined
-} from '@ant-design/icons';
-import type { UserData } from '../../../types/dashboardState';
+  CheckCircleOutlined,
+} from "@ant-design/icons";
+import type { UserData } from "../../../types/dashboardState";
 
 interface Props {
-  userData:UserData
+  userData: UserData;
 }
 
-const LeaveDetails: React.FC<Props> = ({ userData}) => {
-  console.log('userdata', userData);
+const LeaveDetails: React.FC<Props> = ({ userData }) => {
   return (
-    <Card >
+    <Card>
       <Row>
         <Col span={24}>
           <Typography.Text strong underline>
@@ -28,7 +27,7 @@ const LeaveDetails: React.FC<Props> = ({ userData}) => {
           <Statistic
             title="Annual Leave Balance"
             value={userData.annualLeaveBalances?.toFixed(2)}
-            prefix={<LikeOutlined style={{ color: '#1890ff' }} />}
+            prefix={<LikeOutlined style={{ color: "#1890ff" }} />}
           />
         </Col>
 
@@ -36,7 +35,7 @@ const LeaveDetails: React.FC<Props> = ({ userData}) => {
           <Statistic
             title="Pending Approval Leave Requests"
             value={userData.pendingApprovalLeaves}
-            prefix={<HourglassOutlined style={{ color: '#faad14' }} />}
+            prefix={<HourglassOutlined style={{ color: "#faad14" }} />}
           />
         </Col>
 
@@ -44,8 +43,8 @@ const LeaveDetails: React.FC<Props> = ({ userData}) => {
           <Statistic
             title="Approved Leave Requests"
             value={userData.approvedLeaves}
-           // suffix="/ 100"
-            prefix={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
+            // suffix="/ 100"
+            prefix={<CheckCircleOutlined style={{ color: "#52c41a" }} />}
           />
         </Col>
       </Row>

@@ -1,37 +1,42 @@
-import React, { useEffect, useState } from "react";
 import {
-  Form,
-  Input,
-  DatePicker,
-  Row,
+  EditOutlined,
+  CalendarOutlined,
+  AppstoreAddOutlined,
+} from "@ant-design/icons";
+import {
   Col,
+  Row,
+  Form,
+  Card,
+  Spin,
+  Input,
   Select,
   Button,
-  Card,
-  Typography,
   Tooltip,
   Skeleton,
-  Spin,
-  message,
-  Tag,
-  Modal,
-  Drawer,
-  Alert,
+  DatePicker,
+  Typography,
   notification,
 } from "antd";
-import {
-  AppstoreAddOutlined,
-  CalendarOutlined,
-  FileTextOutlined,
-  EditOutlined,
-} from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
 import moment from "moment";
+import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 
-import ApprovalTrailModal from "../../../../components/ApprovalTrailModal";
+import {
+  cancelApproval,
+  selectCancelApprovalApplication,
+} from "../../../../features/common/cancelApprovalReq";
+import {
+  sendForApproval,
+  selectApprovalApplication,
+} from "../../../../features/common/sendforApproval";
 import PageHeader from "../../../../components/PageHeader";
+import type { AlertInfo } from "../../../../types/dropdown";
 import type { LeaveApplication } from "../../../../types/leave";
-import { useAppDispatch, useAppSelector } from "../../../../hooks/ReduxHooks";
+import {
+  fetchLeaveDocument,
+  selectLeaveDocument,
+} from "../../../../features/leaveApplication/fetchLeaveDocument";
 import {
   fetchLeaveDropdownData,
   selectDropdowns,
@@ -41,28 +46,12 @@ import {
   selectReturnDates,
 } from "../../../../features/leaveApplication/fetchLeaveReturnDates";
 import {
-  fetchLeaveDocument,
-  selectLeaveDocument,
-} from "../../../../features/leaveApplication/fetchLeaveDocument";
-import {
   selectLeaveApplication,
   submitLeaveApplication,
 } from "../../../../features/leaveApplication/leaveApplicationSlice";
-import {
-  selectApprovalApplication,
-  sendForApproval,
-} from "../../../../features/common/sendforApproval";
-import {
-  cancelApproval,
-  selectCancelApprovalApplication,
-} from "../../../../features/common/cancelApprovalReq";
+import ApprovalTrailModal from "../../../../components/ApprovalTrailModal";
+import { useAppDispatch, useAppSelector } from "../../../../hooks/ReduxHooks";
 import { fetchLeaves } from "../../../../features/leaveApplication/leaveListSlice";
-import DocumentList from "../../../Documents/DocumentList";
-import {
-  fetchDocuments,
-  selectDocumentsList,
-} from "../../../../features/common/documents";
-import type { AlertInfo } from "../../../../types/dropdown";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -74,40 +63,25 @@ const LeaveDocumentView: React.FC = () => {
   const leaveNo = new URLSearchParams(window.location.search).get("DocumentNo");
   const isEditMode = Boolean(leaveNo);
 
-  const {
-    leave: leaveData,
-    status: leaveStatus,
-    error: leaveError,
-  } = useAppSelector(selectLeaveDocument);
-  const { leaveTypes, relievers, responsibilityCenters, status, error } =
+  const { leave: leaveData, status: leaveStatus } =
+    useAppSelector(selectLeaveDocument);
+  const { leaveTypes, relievers, responsibilityCenters, error } =
     useAppSelector(selectDropdowns);
 
-  const { data: returnData, status: returnStatus } =
-    useAppSelector(selectReturnDates);
-  const { data: res, status: resStatus } = useAppSelector(
-    selectLeaveApplication
-  );
+  const { status: returnStatus } = useAppSelector(selectReturnDates);
+  const { status: resStatus } = useAppSelector(selectLeaveApplication);
 
-  const { message: approvalRes, status: approvalStatus } = useAppSelector(
-    selectApprovalApplication
+  const { status: approvalStatus } = useAppSelector(selectApprovalApplication);
+  const { status: cancelApprovalStatus } = useAppSelector(
+    selectCancelApprovalApplication,
   );
-  const { message: cancelApprovalReq, status: cancelApprovalStatus } =
-    useAppSelector(selectCancelApprovalApplication);
-
-  const { status: documentStatus, documents } =
-    useAppSelector(selectDocumentsList);
 
   const [form] = Form.useForm();
-  const [isHeaderPinned, setIsHeaderPinned] = useState(true);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedLeave, setSelectedLeave] = useState<LeaveApplication | null>(
-    null
-  );
-  const [isMobileView, setIsMobileView] = useState(false);
-  const [documentListVisible, setDocumentListVisible] = useState(false);
+
   const [isReadOnly, setIsReadOnly] = useState(true);
-  const [documentCount, setDocumentCount] = useState(0);
-  const [alertInfor, setAlertInfor] = React.useState<AlertInfo>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [isHeaderPinned, setIsHeaderPinned] = useState(true);
+  const [_, setAlertInfor] = React.useState<AlertInfo>(null);
   const [api, contextHolder] = notification.useNotification();
 
   useEffect(() => {
@@ -122,7 +96,7 @@ const LeaveDocumentView: React.FC = () => {
     if (isEditMode && leaveData && relievers.length > 0) {
       //normalize the reliever code
       const relieverCode = relievers.find(
-        (reliever) => reliever.description === leaveData.reliever
+        (reliever) => reliever.description === leaveData.reliever,
       )?.code;
 
       form.setFieldsValue({
@@ -157,20 +131,14 @@ const LeaveDocumentView: React.FC = () => {
     responsibilityCenters.length,
   ]);
 
-  // useEffect(() => {
-  //     if (leaveNo) {
-  //         dispatch(fetchDocuments({ tableId: 50215, docNo: leaveNo }));
-  //     }
-  // }, [leaveNo, dispatch]);
   const getReturnDate = async (values: any) => {
     const { leaveType, startDate, endDate } = values;
     if (!leaveType || !startDate) return;
     const payload = {
-      leaveNo: leaveNo,
+      leaveNo: leaveNo || "",
       leaveType,
       startDate: startDate.format("YYYY-MM-DD"),
       endDate: endDate.format("YYYY-MM-DD"),
-      //  leaveDays: Number(days),
     };
 
     try {
@@ -190,10 +158,9 @@ const LeaveDocumentView: React.FC = () => {
         message: "Error",
         description: err?.message || "Error fetching return date",
         style: {
-          // backgroundColor: '#ff4d4f',
-          borderColor: "#ff4d4f",
           color: "#fff",
           fontWeight: "semibold",
+          borderColor: "#ff4d4f",
         },
         duration: 5,
         onClose: () => {
@@ -204,7 +171,6 @@ const LeaveDocumentView: React.FC = () => {
   };
 
   const handleFinish = async (values: any) => {
-    console.log("values", values);
     const payload: LeaveApplication = {
       ...values,
       leaveNo,
@@ -244,103 +210,6 @@ const LeaveDocumentView: React.FC = () => {
     }
   };
 
-  const handleSendForApproval = () => {
-    if (!leaveNo) return;
-
-    dispatch(
-      sendForApproval({
-        docNo: leaveNo,
-        endpoint: `/Leave/send-approval?leaveNo=${leaveNo}`, // use `leaveNo` not `docNo`
-      })
-    )
-      .unwrap()
-      .then((response) => {
-        api.success({
-          message: "Success",
-          description: response.message,
-          style: {
-            // backgroundColor: '#52c41a',
-            borderColor: "#52c41a",
-            color: "#fff",
-            fontWeight: "semibold",
-          },
-          duration: 3,
-          onClose: () => {
-            dispatch(fetchLeaves());
-            navigate("/Leave Application/Leave-List");
-          },
-        });
-      })
-      .catch((error) => {
-        api.error({
-          message: "Error",
-          description: error.message || "Failed to send for approval",
-          style: {
-            // backgroundColor: '#ff4d4f',
-            borderColor: "#ff4d4f",
-            color: "#fff",
-            fontWeight: "semibold",
-          },
-          duration: 3,
-          onClose: () => {
-            dispatch({ type: "RESET" });
-          },
-        });
-      });
-  };
-
-  const handleCancelApproval = () => {
-    if (!leaveNo) return;
-
-    dispatch(
-      cancelApproval({
-        docNo: leaveNo,
-        endpoint: `/Leave/cancel-approval?leaveNo=${leaveNo}`, // use `leaveNo` not `docNo`
-      })
-    )
-      .unwrap()
-      .then((response) => {
-        api.success({
-          message: "Success",
-          description: response.message,
-          style: {
-            // backgroundColor: '#52c41a',
-            borderColor: "#52c41a",
-            color: "#fff",
-            fontWeight: "semibold",
-          },
-          duration: 3,
-          onClose: () => {
-            dispatch(fetchLeaves());
-
-            navigate("/Leave Application/Leave-List");
-          },
-        });
-      })
-      .catch((error) => {
-        api.error({
-          message: "Error",
-          description: error.message || "Failed to cancel approval",
-          style: {
-            // backgroundColor: '#ff4d4f',
-            borderColor: "#ff4d4f",
-            color: "#fff",
-            fontWeight: "semibold",
-          },
-          duration: 3,
-          onClose: () => {
-            dispatch({ type: "RESET" });
-          },
-        });
-      });
-  };
-
-  // Handle file attachment toggle
-  const handleFileAttachment = () => {
-    setIsMobileView((prev) => !prev);
-    setDocumentListVisible((prev) => !prev);
-  };
-
   const commonProps = { readOnly: isReadOnly };
 
   return (
@@ -349,11 +218,7 @@ const LeaveDocumentView: React.FC = () => {
         title=""
         isPinned={isHeaderPinned}
         onTogglePin={() => setIsHeaderPinned(!isHeaderPinned)}
-        showActions={true}
-        onSendForApproval={handleSendForApproval}
-        onCancelApproval={handleCancelApproval}
       />
-
       <Card>
         {leaveStatus === "pending" ? (
           <Skeleton active paragraph={{ rows: 10 }} />
@@ -412,12 +277,6 @@ const LeaveDocumentView: React.FC = () => {
                   Leave Application Form-{leaveNo}
                 </Typography.Text>
                 <div style={{ display: "flex", gap: "8px" }}>
-                  {/* <Tooltip title="File Attachment">
-                                        <Button type="default" onClick={handleFileAttachment} icon={<FileTextOutlined />}>
-                                            File Attachment-<Tag color="red" style={{ marginLeft: 4 }}>{documents.length}</Tag>
-                                        </Button>
-                                    </Tooltip> */}
-
                   <Tooltip title="Approval Trail">
                     <Button
                       type="dashed"
@@ -591,27 +450,6 @@ const LeaveDocumentView: React.FC = () => {
                     )}
                   </Row>
                 </Col>
-                {isMobileView && (
-                  <Drawer
-                    title="File Attachment"
-                    placement="right"
-                    width={800}
-                    onClose={handleFileAttachment}
-                    visible={documentListVisible}
-                  >
-                    {/* <DocumentList
-                                            visible={documentListVisible}
-                                            onClose={() => {
-                                                setDocumentListVisible(false);
-                                                setIsMobileView(false);
-                                            }}
-                                            documents={documents}
-                                            tableId={50215}
-                                            docNo={leaveNo}
-
-                                        /> */}
-                  </Drawer>
-                )}
               </Row>
             </Form>
           </div>

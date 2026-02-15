@@ -1,10 +1,10 @@
 // features/leave/sendForApproval.ts
-import axios from 'axios';
+import axios from "axios";
 
-import { createSlice } from '@reduxjs/toolkit';
-import type { RootState } from '../../app/store';
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import { getPersistedTokens } from '../../utils/token';
+import { createSlice } from "@reduxjs/toolkit";
+import type { RootState } from "../../app/store";
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import { getPersistedTokens } from "../../utils/token";
 
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 
@@ -18,13 +18,13 @@ interface ApprovalResponse {
 }
 
 interface ApprovalState {
-  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  status: "idle" | "loading" | "succeeded" | "failed";
   message: string | null;
   error: string | null;
 }
 
 const initialState: ApprovalState = {
-  status: 'idle',
+  status: "idle",
   message: null,
   error: null,
 };
@@ -34,7 +34,7 @@ export const sendForApproval = createAsyncThunk<
   SendForApprovalParams,
   { rejectValue: { message: string } }
 >(
-  'approval/sendForApproval',
+  "approval/sendForApproval",
   async ({ docNo, endpoint }, { rejectWithValue }) => {
     try {
       const { token, bcToken } = getPersistedTokens();
@@ -45,13 +45,13 @@ export const sendForApproval = createAsyncThunk<
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'BC-Authorization': bcToken || '',
+            "BC-Authorization": bcToken || "",
           },
-        }
+        },
       );
 
       return {
-        message: data?.message ?? 'Sent for approval successfully',
+        message: data?.message ?? "Sent for approval successfully",
       };
     } catch (err: any) {
       console.log(err);
@@ -59,33 +59,36 @@ export const sendForApproval = createAsyncThunk<
         message: err.response?.data?.error || err.message,
       });
     }
-  }
+  },
 );
 
 const approvalSlice = createSlice({
-  name: 'approval',
+  name: "approval",
   initialState,
-  reducers: {},
+  reducers: {
+    resetSendApprovalState: () => initialState,
+  },
   extraReducers: (builder) => {
     builder
       .addCase(sendForApproval.pending, (state) => {
-        state.status = 'loading';
+        state.status = "loading";
         state.message = null;
         state.error = null;
       })
       .addCase(sendForApproval.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.status = "succeeded";
         state.message = action.payload.message;
         state.error = null;
       })
       .addCase(sendForApproval.rejected, (state, action) => {
-        state.status = 'failed';
+        state.status = "failed";
         state.message = null;
-        state.error = action.payload?.message || 'Something went wrong';
+        state.error = action.payload?.message || "Something went wrong";
       });
   },
 });
 
 export const selectApprovalApplication = (state: RootState) => state.approval;
+export const { resetSendApprovalState } = approvalSlice.actions;
 
 export default approvalSlice.reducer;

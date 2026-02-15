@@ -1,8 +1,8 @@
 // features/leave/returnDatesSlice.ts
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-import type { RootState } from '../../app/store';
-import { getPersistedTokens } from '../../utils/token';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
+import type { RootState } from "../../app/store";
+import { getPersistedTokens } from "../../utils/token";
 
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 
@@ -10,25 +10,26 @@ interface ReturnDatesPayload {
   leaveNo: string;
   leaveType: string;
   startDate: string;
-  leaveDays: number;
+  leaveDays?: number;
+  endDate?: string;
 }
 
 interface ReturnDatesResponse {
   returnDate: string;
   endDate: string;
-  leaveDays:number;
+  leaveDays: number;
   leaveNo: string;
 }
 
 interface ReturnDatesState {
   data: ReturnDatesResponse | null;
-  status: 'idle' | 'pending' | 'failed';
+  status: "idle" | "pending" | "failed";
   error: string | null;
 }
 
 const initialState: ReturnDatesState = {
   data: null,
-  status: 'idle',
+  status: "idle",
   error: null,
 };
 
@@ -36,16 +37,20 @@ export const fetchReturnDates = createAsyncThunk<
   ReturnDatesResponse,
   ReturnDatesPayload,
   { rejectValue: { message: string } }
->('leave/fetchReturnDates', async (payload, { rejectWithValue }) => {
+>("leave/fetchReturnDates", async (payload, { rejectWithValue }) => {
   try {
     const { token, bcToken } = getPersistedTokens();
 
-    const { data } = await axios.post(`${API_ENDPOINT}/Leave/apply-leave`, payload, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'BC-Authorization': bcToken || '',
+    const { data } = await axios.post(
+      `${API_ENDPOINT}/Leave/apply-leave`,
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "BC-Authorization": bcToken || "",
+        },
       },
-    });
+    );
 
     return {
       returnDate: data.returnDate,
@@ -54,30 +59,29 @@ export const fetchReturnDates = createAsyncThunk<
       leaveNo: data.docNo,
     };
   } catch (error: any) {
-    return rejectWithValue({ message:error.response?.data?.error|| 'Failed to fetch return dates' });
-    
+    return rejectWithValue({
+      message: error.response?.data?.error || "Failed to fetch return dates",
+    });
   }
-
 });
 
 const returnDatesSlice = createSlice({
-  name: 'returnDates',
+  name: "returnDates",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchReturnDates.pending, (state) => {
-        state.status = 'pending';
+        state.status = "pending";
         state.error = null;
       })
       .addCase(fetchReturnDates.fulfilled, (state, { payload }) => {
-        state.status = 'idle';
+        state.status = "idle";
         state.data = payload;
       })
       .addCase(fetchReturnDates.rejected, (state, { payload }) => {
-        state.status = 'failed';
-        state.error = payload?.message ?? 'Unknown error';
-        
+        state.status = "failed";
+        state.error = payload?.message ?? "Unknown error";
       });
   },
 });

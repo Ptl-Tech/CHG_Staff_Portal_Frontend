@@ -16,13 +16,13 @@ export interface DocumentApprovalDTO {
 interface ApprovalState {
   data: any;
   error: any;
-  documentApprovalRequest: DocumentApprovalDTO;
+  leaveApprovalRequest: DocumentApprovalDTO;
   status: "idle" | "loading" | "succeeded" | "failed";
 }
 
 const initialState: ApprovalState = {
   data: [],
-  documentApprovalRequest: {
+  leaveApprovalRequest: {
     entryNo: 0,
     documentNo: "",
     approverID: "",
@@ -32,16 +32,16 @@ const initialState: ApprovalState = {
   error: null,
 };
 
-export const fetchMyApprovalDocuments = createAsyncThunk<
+export const fetchMyLeaveApprovalDocuments = createAsyncThunk<
   any[],
   { approverId: string },
   { rejectValue: { message: string } }
 >(
-  "approval/fetchMyApprovalDocuments",
+  "leaveMgt/fetchMyLeaveApprovalDocuments",
   async ({ approverId }, { rejectWithValue }) => {
     try {
       const { token, bcToken } = getPersistedTokens();
-      const url = `${API_ENDPOINT}/ApprovalMgt/my-approval-documents?approverId=${encodeURIComponent(
+      const url = `${API_ENDPOINT}/LeaveApprovalMgt/my-leave-approval-documents?approverId=${encodeURIComponent(
         approverId,
       )}`;
       const { data } = await axios.get(url, {
@@ -67,7 +67,7 @@ export const submitDocumentApproval = createAsyncThunk<
   DocumentApprovalDTO,
   { rejectValue: { message: string } }
 >(
-  "approval/submitDocumentApproval",
+  "leaveMgt/submitDocumentApproval",
   async (payloadData, { rejectWithValue }) => {
     try {
       const { token, bcToken } = getPersistedTokens();
@@ -93,23 +93,23 @@ export const submitDocumentApproval = createAsyncThunk<
   },
 );
 
-const approvalSlice = createSlice({
-  name: "approvalMgt",
+const leaveApprovalSlice = createSlice({
+  name: "leaveMgt",
   initialState,
   reducers: {
     resetApprovalState: () => initialState,
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchMyApprovalDocuments.pending, (state) => {
+      .addCase(fetchMyLeaveApprovalDocuments.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
-      .addCase(fetchMyApprovalDocuments.fulfilled, (state, { payload }) => {
+      .addCase(fetchMyLeaveApprovalDocuments.fulfilled, (state, { payload }) => {
         state.data = payload;
         state.status = "succeeded";
       })
-      .addCase(fetchMyApprovalDocuments.rejected, (state, { payload }) => {
+      .addCase(fetchMyLeaveApprovalDocuments.rejected, (state, { payload }) => {
         state.status = "failed";
         state.error = payload;
       })
@@ -128,5 +128,5 @@ const approvalSlice = createSlice({
   },
 });
 
-export const { resetApprovalState } = approvalSlice.actions;
-export default approvalSlice.reducer;
+export const { resetApprovalState } = leaveApprovalSlice.actions;
+export default leaveApprovalSlice.reducer;

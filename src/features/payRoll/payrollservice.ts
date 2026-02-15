@@ -7,7 +7,9 @@ const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 
 // ---- Interfaces ----
 interface PayrollPeriods {
+  closed: boolean;
   periodName: string;
+  periodYear: number;
   periodStartDate: string;
 }
 
@@ -49,12 +51,15 @@ export const fetchPayRollPeriods = createAsyncThunk<
   try {
     const { token, bcToken } = getPersistedTokens();
 
-    const { data } = await axios.get(`${API_ENDPOINT}/Payroll/Payroll-Periods`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "BC-Authorization": bcToken || "",
+    const { data } = await axios.get(
+      `${API_ENDPOINT}/Payroll/Payroll-Periods`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "BC-Authorization": bcToken || "",
+        },
       },
-    });
+    );
 
     return { payrollPeriods: data || [] };
   } catch (err: any) {
@@ -79,7 +84,7 @@ export const generatePayslip = createAsyncThunk<
           Authorization: `Bearer ${token}`,
           "BC-Authorization": bcToken || "",
         },
-      }
+      },
     );
 
     return {
@@ -110,7 +115,7 @@ export const generateP9 = createAsyncThunk<
           Authorization: `Bearer ${token}`,
           "BC-Authorization": bcToken || "",
         },
-      }
+      },
     );
 
     return {
@@ -143,7 +148,8 @@ const payrollServiceSlice = createSlice({
       })
       .addCase(fetchPayRollPeriods.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload?.message || "Failed to fetch payroll periods";
+        state.error =
+          action.payload?.message || "Failed to fetch payroll periods";
       })
 
       // Generate Payslip

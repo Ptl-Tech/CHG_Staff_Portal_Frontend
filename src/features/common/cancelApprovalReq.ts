@@ -1,9 +1,9 @@
 // features/leave/sendForApproval.ts
 
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { getPersistedTokens } from '../../utils/token';
-import type { RootState } from '../../app/store';
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+import { getPersistedTokens } from "../../utils/token";
+import type { RootState } from "../../app/store";
 
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 
@@ -17,13 +17,13 @@ interface CancelApprovalResponse {
 }
 
 interface CancelApprovalState {
-  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  status: "idle" | "loading" | "succeeded" | "failed";
   message: string | null;
   error: string | null;
 }
 
 const initialState: CancelApprovalState = {
-  status: 'idle',
+  status: "idle",
   message: null,
   error: null,
 };
@@ -33,7 +33,7 @@ export const cancelApproval = createAsyncThunk<
   CancelApprovalParams,
   { rejectValue: { message: string } }
 >(
-  'approval/cancelApproval',
+  "approval/cancelApproval",
   async ({ docNo, endpoint }, { rejectWithValue }) => {
     try {
       const { token, bcToken } = getPersistedTokens();
@@ -44,47 +44,50 @@ export const cancelApproval = createAsyncThunk<
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'BC-Authorization': bcToken || '',
+            "BC-Authorization": bcToken || "",
           },
-        }
+        },
       );
 
       return {
-        message: data?.description ?? 'Cancelled approval successfully',
+        message: data?.description ?? "Cancelled approval successfully",
       };
     } catch (err: any) {
       return rejectWithValue({
-        message: err.response?.data?.error || err.message || 'Unexpected error',
+        message: err.response?.data?.error || err.message || "Unexpected error",
       });
     }
-  }
+  },
 );
 
 const cancelApprovalSlice = createSlice({
-  name: 'cancelApproval',
+  name: "cancelApproval",
   initialState,
-  reducers: {},
+  reducers: {
+    resetCancelApproval: () => initialState,
+  },
   extraReducers: (builder) => {
     builder
       .addCase(cancelApproval.pending, (state) => {
-        state.status = 'loading';
+        state.status = "loading";
         state.message = null;
         state.error = null;
       })
       .addCase(cancelApproval.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.status = "succeeded";
         state.message = action.payload.message;
         state.error = null;
       })
       .addCase(cancelApproval.rejected, (state, action) => {
-        state.status = 'failed';
+        state.status = "failed";
         state.message = null;
-        state.error = action.payload?.message || 'Something went wrong';
+        state.error = action.payload?.message || "Something went wrong";
       });
   },
 });
 
 export const selectCancelApprovalApplication = (state: RootState) =>
   state.cancelApproval;
+export const { resetCancelApproval } = cancelApprovalSlice.actions;
 
 export default cancelApprovalSlice.reducer;

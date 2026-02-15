@@ -1,52 +1,60 @@
-// src/components/layout/PageHeader.tsx
-
-import React from 'react';
-import { Button, Typography, Space } from 'antd';
-import { ArrowLeftOutlined, PushpinOutlined, PushpinFilled, CheckOutlined, CloseOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import {
+  PushpinFilled,
+  CheckOutlined,
+  CloseOutlined,
+  PushpinOutlined,
+  ArrowLeftOutlined,
+} from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
+import { Button, Typography, Space } from "antd";
 
 const { Title } = Typography;
 
 interface PageHeaderProps {
   title: string;
   isPinned: boolean;
-  onTogglePin: () => void;
   showBack?: boolean;
   showActions?: boolean;
-  onSendForApproval?: () => void;
+  onTogglePin: () => void;
   onCancelApproval?: () => void;
+  onSendForApproval?: () => void;
 }
 
 const PageHeader: React.FC<PageHeaderProps> = ({
   title,
   isPinned,
   onTogglePin,
+  showActions,
   showBack = true,
-  showActions = false,
-  onSendForApproval,
   onCancelApproval,
+  onSendForApproval,
 }) => {
   const navigate = useNavigate();
 
   return (
     <div
       style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        position: isPinned ? 'sticky' : 'relative',
-        top: isPinned ? 0 : 'unset',
-        background: isPinned ? '#fff' : 'transparent',
-        zIndex: isPinned ? 1 : 'unset',
-        paddingBottom: 12,
+        display: "flex",
         paddingTop: 12,
+        paddingBottom: 12,
         paddingInline: 20,
-        borderBottom: isPinned ? '1px solid #f0f0f0' : 'none',
+        alignItems: "center",
+        top: isPinned ? 0 : "unset",
+        zIndex: isPinned ? 1 : "unset",
+        justifyContent: "space-between",
+        position: isPinned ? "sticky" : "relative",
+        background: isPinned ? "#fff" : "transparent",
+        borderBottom: isPinned ? "1px solid #f0f0f0" : "none",
       }}
     >
       <Space direction="vertical">
         {showBack && (
-          <Button type="link" icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)}>
+          <Button
+            type="link"
+            icon={<ArrowLeftOutlined />}
+            onClick={() => navigate(-1)}
+          >
             Back
           </Button>
         )}
