@@ -51,8 +51,7 @@ const LeaveList: React.FC = () => {
     ),
     "Rejected Documents": data.filter(
       (item: any) =>
-        item.status?.toLowerCase() === "rejected" ||
-        item.status?.toLowerCase() === "Cancelled",
+        item.status?.toLowerCase() === "cancelled",
     ),
   };
 
@@ -216,18 +215,28 @@ const ApproveLeaveDocumentView = ({
 
   if (!record) return;
 
+  const isPendingApproval = record?.status?.toLowerCase() === "pending approval";
+
   return (
     <Modal
       open={open}
       footer={null}
+      closable={false}
       title={`Leave Details for ${record?.employeeName}`}
     >
       <Space direction="vertical" className="gap-2 align-items-stretch">
         <div className="d-flex gap-2">
-          <Button type="primary" onClick={onApprove}>
-            Approve Leave Request
-          </Button>
-          <Button onClick={onReject}>Reject Leave Request</Button>
+          {isPendingApproval && (
+            <>
+              <Button type="primary" onClick={onApprove}>
+                Approve Leave Request
+              </Button>
+              <Button onClick={onReject}>
+                Reject Leave Request
+              </Button>
+            </>
+          )}
+          <Button onClick={onClose}>Close</Button>
         </div>
         <CustomDescriptions
           items={
