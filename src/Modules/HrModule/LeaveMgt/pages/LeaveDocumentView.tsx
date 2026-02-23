@@ -200,6 +200,10 @@ const LeaveDocumentView: React.FC = () => {
           : null,
         endDate: res.endDate ? moment(res.endDate) : null,
       });
+      // Redirect to Leave Applications list and prompt user to send for approval
+      navigate("/Leave Application/Leave-List", {
+        state: { promptApproval: true, leaveNo: res.leaveNo },
+      });
     } catch (err: any) {
       setAlertInfor({ message: err?.message, type: "error" });
 

@@ -5,7 +5,7 @@ import {
   Table,
   Badge,
   Button,
-  Popover,
+  Modal,
   Skeleton,
 } from "antd";
 import {
@@ -15,7 +15,7 @@ import {
   EllipsisOutlined,
 } from "@ant-design/icons";
 import moment from "moment";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import type { ColumnsType } from "antd/es/table";
 import React, { useEffect, useState } from "react";
 import type { AnyObject } from "antd/es/_util/type";
@@ -137,37 +137,34 @@ const LeaveApplications: React.FC = () => {
     );
   };
 
-  const Content = ({ record }: { record: AnyObject }) => {
-    return (
-      <div className="d-grid gap-1">
-        <Button
-          type="primary"
-          onClick={() =>
-            navigate(
-              `/Leave Application/Leave-Document?DocumentNo=${record.leaveNo}`,
-            )
-          }
-          icon={<EyeOutlined />}
-        >
-          View Document
-        </Button>
-        <Button
-          icon={<SendOutlined />}
-          disabled={["Released", "Pending Approval"].includes(record.status)}
-          onClick={() => handleSendForApproval(record)}
-        >
-          Send for approval
-        </Button>
-        <Button
-          icon={<CloseOutlined />}
-          disabled={["Released", "Open"].includes(record.status)}
-          onClick={() => handleCancelApproval(record)}
-        >
-          Cancel approval
-        </Button>
-      </div>
-    );
-  };
+  const location = useLocation();
+  const [promptHandled, setPromptHandled] = useState(false);
+
+  useEffect(() => {
+    const state = (location.state as any) || {};
+    if (state?.promptApproval && state.leaveNo && !promptHandled) {
+      Modal.confirm({
+        title: "Send for Approval",
+        content: (
+          <div>
+            <p>
+              Your leave request <strong>{state.leaveNo}</strong> was created
+              successfully.
+            </p>
+            <p>Would you like to send it for approval now?</p>
+          </div>
+        ),
+        okText: "Send for approval",
+        cancelText: "Later",
+        onOk() {
+          handleSendForApproval({ leaveNo: state.leaveNo });
+        },
+      });
+
+      setPromptHandled(true);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate, promptHandled]);
 
   const columns: ColumnsType = [
     {
@@ -230,13 +227,33 @@ const LeaveApplications: React.FC = () => {
       fixed: "right",
       width: 150,
       render: (_: any, record: AnyObject) => (
-        <Popover
-          title="Actions"
-          trigger="click"
-          content={<Content record={record} />}
-        >
-          <Button icon={<EllipsisOutlined />} />
-        </Popover>
+        <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+          <Button
+            type="primary"
+            onClick={() =>
+              navigate(
+                `/Leave Application/Leave-Document?DocumentNo=${record.leaveNo}`,
+              )
+            }
+            icon={<EyeOutlined />}
+          >
+            View Document
+          </Button>
+          <Button
+            icon={<SendOutlined />}
+            disabled={["Released", "Pending Approval"].includes(record.status)}
+            onClick={() => handleSendForApproval(record)}
+          >
+            Send for approval
+          </Button>
+          <Button
+            icon={<CloseOutlined />}
+            disabled={["Released", "Open"].includes(record.status)}
+            onClick={() => handleCancelApproval(record)}
+          >
+            Cancel approval
+          </Button>
+        </div>
       ),
     },
   ];
