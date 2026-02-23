@@ -17,8 +17,14 @@ import {
 import { approveLeaveRequest } from "../../features/leaveApplication/approveLeaveRequest";
 import { fetchMyLeaveApprovalDocuments } from "../../features/approval-management/leavemgtFiles";
 import { cancelLeaveRequest } from "../../features/leaveApplication/cancelLeaveRequest";
-import { selectApproveLeave, resetApproveLeaveState } from "../../features/leaveApplication/approveLeaveSlice";
-import { selectCancelLeave, resetCancelLeaveState } from "../../features/leaveApplication/cancelLeaveSlice";
+import {
+  selectApproveLeave,
+  resetApproveLeaveState,
+} from "../../features/leaveApplication/approveLeaveSlice";
+import {
+  selectCancelLeave,
+  resetCancelLeaveState,
+} from "../../features/leaveApplication/cancelLeaveSlice";
 
 const LeaveList: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -27,15 +33,12 @@ const LeaveList: React.FC = () => {
   const nameid = decodedToken?.nameid;
 
   const [open, setOpen] = useState(false);
-  const [showModal, setShowModal] = useState(false);
   const [activeKey, setActiveKey] = useState("Pending approval");
   const [selectedDocument, setSelectedDocument] = useState<any | null>(null);
 
   const { data, status } = useAppSelector(
     (state: RootState) => state.leaveApprovalMgt,
   );
-
-  console.log({ data });
 
   useEffect(() => {
     dispatch(fetchMyLeaveApprovalDocuments({ approverId: nameid || "" }));
@@ -50,8 +53,7 @@ const LeaveList: React.FC = () => {
       (item: any) => item.status?.toLowerCase() === "released",
     ),
     "Rejected Documents": data.filter(
-      (item: any) =>
-        item.status?.toLowerCase() === "cancelled",
+      (item: any) => item.status?.toLowerCase() === "cancelled",
     ),
   };
 
@@ -115,14 +117,27 @@ const LeaveList: React.FC = () => {
             items={Object.entries(approvalsByStatus).map(([status, data]) => ({
               key: status,
               label: status,
-              children: (
-                <Table
-                  columns={columns}
-                  dataSource={data}
-                  rowKey="documentNo"
-                  pagination={{ pageSize: 75 }}
-                />
-              ),
+              children:
+                data.length === 0 ? (
+                  <div
+                    style={{
+                      textAlign: "center",
+                      padding: "40px 20px",
+                      color: "#999",
+                    }}
+                  >
+                    <Typography.Text>
+                      No {status.toLowerCase()} documents
+                    </Typography.Text>
+                  </div>
+                ) : (
+                  <Table
+                    columns={columns}
+                    dataSource={data}
+                    rowKey="documentNo"
+                    pagination={{ pageSize: 75 }}
+                  />
+                ),
             }))}
           />
         )}
@@ -152,6 +167,7 @@ const ApproveLeaveDocumentView = ({
   const dispatch = useAppDispatch();
   const approveLeave = useAppSelector(selectApproveLeave);
   const cancelLeave = useAppSelector(selectCancelLeave);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Handle approve leave response
   useEffect(() => {
@@ -165,6 +181,8 @@ const ApproveLeaveDocumentView = ({
       });
       dispatch(resetApproveLeaveState());
       dispatch(fetchMyLeaveApprovalDocuments({ approverId: approverID }));
+      setIsProcessing(false);
+      onClose();
     } else if (approveLeave.status === "failed") {
       toast.error(approveLeave.error || "Failed to approve leave request", {
         style: {
@@ -174,8 +192,9 @@ const ApproveLeaveDocumentView = ({
         },
       });
       dispatch(resetApproveLeaveState());
+      setIsProcessing(false);
     }
-  }, [approveLeave.status, approveLeave.error, dispatch, approverID]);
+  }, [approveLeave.status, approveLeave.error, dispatch, approverID, onClose]);
 
   // Handle cancel leave response
   useEffect(() => {
@@ -189,6 +208,8 @@ const ApproveLeaveDocumentView = ({
       });
       dispatch(resetCancelLeaveState());
       dispatch(fetchMyLeaveApprovalDocuments({ approverId: approverID }));
+      setIsProcessing(false);
+      onClose();
     } else if (cancelLeave.status === "failed") {
       toast.error(cancelLeave.error || "Failed to reject leave request", {
         style: {
@@ -198,24 +219,24 @@ const ApproveLeaveDocumentView = ({
         },
       });
       dispatch(resetCancelLeaveState());
+      setIsProcessing(false);
     }
-  }, [cancelLeave.status, cancelLeave.error, dispatch, approverID]);
+  }, [cancelLeave.status, cancelLeave.error, dispatch, approverID, onClose]);
 
   const onApprove = () => {
-    // send a request
+    setIsProcessing(true);
     dispatch(approveLeaveRequest({ leaveNo: record.no }));
-    onClose();
   };
 
   const onReject = () => {
-    // cancel the leave approval
+    setIsProcessing(true);
     dispatch(cancelLeaveRequest({ leaveNo: record.no }));
-    onClose();
   };
 
   if (!record) return;
 
-  const isPendingApproval = record?.status?.toLowerCase() === "pending approval";
+  const isPendingApproval =
+    record?.status?.toLowerCase() === "pending approval";
 
   return (
     <Modal
@@ -223,21 +244,35 @@ const ApproveLeaveDocumentView = ({
       footer={null}
       closable={false}
       title={`Leave Details for ${record?.employeeName}`}
+      width={700}
     >
-      <Space direction="vertical" className="gap-2 align-items-stretch">
-        <div className="d-flex gap-2">
-          {isPendingApproval && (
-            <>
-              <Button type="primary" onClick={onApprove}>
-                Approve Leave Request
-              </Button>
-              <Button onClick={onReject}>
-                Reject Leave Request
-              </Button>
-            </>
-          )}
-          <Button onClick={onClose}>Close</Button>
-        </div>
+      <Space direction="vertical" style={{ width: "100%" }} size="large">
+        {isPendingApproval && (
+          <div
+            style={{
+              display: "flex",
+              gap: "8px",
+              justifyContent: "flex-start",
+            }}
+          >
+            <Button
+              type="primary"
+              onClick={onApprove}
+              loading={isProcessing && approveLeave.status === "pending"}
+              disabled={isProcessing}
+            >
+              Approve Leave Request
+            </Button>
+            <Button
+              danger
+              onClick={onReject}
+              loading={isProcessing && cancelLeave.status === "pending"}
+              disabled={isProcessing}
+            >
+              Reject Leave Request
+            </Button>
+          </div>
+        )}
         <CustomDescriptions
           items={
             record
@@ -249,6 +284,16 @@ const ApproveLeaveDocumentView = ({
               : []
           }
         />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: "8px",
+            marginTop: "16px",
+          }}
+        >
+          <Button onClick={onClose}>Close</Button>
+        </div>
       </Space>
     </Modal>
   );
