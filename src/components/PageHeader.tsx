@@ -74,14 +74,14 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             >
               Send for Approval
             </Button>
-            {/* <Button
+            <Button
               danger
               type="default"
               icon={<CloseOutlined />}
               onClick={onCancelApproval}
             >
               Cancel Approval
-            </Button> */}
+            </Button>
           </>
         )}
         <Button

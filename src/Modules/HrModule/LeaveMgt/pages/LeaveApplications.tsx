@@ -1,13 +1,4 @@
-import {
-  Tabs,
-  Card,
-  Alert,
-  Table,
-  Badge,
-  Button,
-  Modal,
-  Skeleton,
-} from "antd";
+import { Tabs, Card, Alert, Table, Badge, Button, Modal, Skeleton } from "antd";
 import {
   EyeOutlined,
   SendOutlined,
@@ -246,13 +237,13 @@ const LeaveApplications: React.FC = () => {
           >
             Send for approval
           </Button>
-          <Button
+          {/* <Button
             icon={<CloseOutlined />}
             disabled={["Released", "Open"].includes(record.status)}
             onClick={() => handleCancelApproval(record)}
           >
             Cancel approval
-          </Button>
+          </Button> */}
         </div>
       ),
     },
