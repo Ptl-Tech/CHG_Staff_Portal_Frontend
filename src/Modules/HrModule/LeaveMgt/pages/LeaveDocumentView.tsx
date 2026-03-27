@@ -76,6 +76,8 @@ const LeaveDocumentView: React.FC = () => {
     selectCancelApprovalApplication,
   );
 
+  console.log({ leaveData });
+
   const [form] = Form.useForm();
 
   const [isReadOnly, setIsReadOnly] = useState(true);
@@ -183,6 +185,12 @@ const LeaveDocumentView: React.FC = () => {
     };
 
     try {
+      if (leaveData?.status != "Open") {
+        return api.error({
+          message: "Sorry, but you are not allowed to edit this document",
+        });
+      }
+
       const res = await dispatch(submitLeaveApplication(payload)).unwrap();
 
       setAlertInfor({ message: res.responseDTO?.description, type: "success" });
@@ -290,15 +298,19 @@ const LeaveDocumentView: React.FC = () => {
                       View Approval Trail
                     </Button>
                   </Tooltip>
-                  <Tooltip title={isReadOnly ? "Edit Form" : "Disable Editing"}>
-                    <Button
-                      type="primary"
-                      icon={<EditOutlined />}
-                      onClick={() => setIsReadOnly((prev) => !prev)}
+                  {leaveData?.status == "Open" && (
+                    <Tooltip
+                      title={isReadOnly ? "Edit Form" : "Disable Editing"}
                     >
-                      {isReadOnly ? "Edit" : "Disable Edit"}
-                    </Button>
-                  </Tooltip>
+                      <Button
+                        type="primary"
+                        icon={<EditOutlined />}
+                        onClick={() => setIsReadOnly((prev) => !prev)}
+                      >
+                        {isReadOnly ? "Edit" : "Disable Edit"}
+                      </Button>
+                    </Tooltip>
+                  )}
                 </div>
               </div>
 
